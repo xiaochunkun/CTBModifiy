@@ -22,8 +22,6 @@ CurseTheBeast
   ![](doc/img/double_click2.png)
   
   ![](doc/img/double_click3.png)
-  
-  ![](doc/img/double_click4.png)
 
 - **命令行**
 
