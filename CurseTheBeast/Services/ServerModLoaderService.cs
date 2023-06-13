@@ -95,7 +95,7 @@ public class ServerModLoaderService : IDisposable
         {
             installer.GameVersion = _pack.Runtime.GameVersion;
             installer.LoaderVersion = _pack.Runtime.ModLoaderVersion;
-            installer.ServerName = $"{_pack.Name} {_pack.Version.Name} Server";
+            installer.ServerName = $"{_pack.Name} v{_pack.Version.Name} Server";
             installer.Ram = _pack.Runtime.RecommendedRam;
         }
         return installer;
