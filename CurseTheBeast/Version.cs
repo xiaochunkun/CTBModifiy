@@ -12,8 +12,8 @@ public readonly struct Version : IComparable<Version>, IEqualityComparer<Version
 
     public Version(string version)
     {
-        VersionStr = version;
         _versions = version.Split('.').Select(int.Parse).ToArray();
+        VersionStr = string.Join('.', _versions);
     }
 
     public static implicit operator Version(string version) => new Version(version);
