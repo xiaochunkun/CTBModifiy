@@ -11,7 +11,7 @@ public class MavenArtifact
     public string Version { get; }
     public string Format { get; }
     public string Namespace { get; }
-    public string? Constriant { get; }
+    public string? Constraint { get; }
 
     public MavenArtifact(string id)
     {
@@ -34,8 +34,8 @@ public class MavenArtifact
         Version = p[2];
         if (p.Length > 3)
         {
-            Constriant = p[3];
-            FileName = $"{Name}-{Version}-{Constriant}.{Format}";
+            Constraint = p[3];
+            FileName = $"{Name}-{Version}-{Constraint}.{Format}";
         }
         else
         {

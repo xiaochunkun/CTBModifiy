@@ -39,7 +39,7 @@ public class InspectCommand : AsyncCommand<InspectCommand.Options>
         table.AddColumn(new TableColumn("Id"));
         table.AddColumn(new TableColumn("Name"));
         table.AddColumn(new TableColumn("Type"));
-        table.AddColumn(new TableColumn("Release"));
+        table.AddColumn(new TableColumn("LastUpdate"));
         foreach (var version in info.versions.OrderByDescending(v => v.updated))
         {
             table.AddRow(

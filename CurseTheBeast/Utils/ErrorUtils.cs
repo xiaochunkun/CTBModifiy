@@ -29,26 +29,26 @@ public static class ErrorUtils
             Error.WriteLine(cliEx.Message);
             return;
         }
-        Handler(ex, false);
+        internalHandler(ex, false);
         AnsiConsole.WriteLine();
         Error.WriteLine("发生了错误");
     }
 
-    static void Handler(Exception ex, bool inner = false)
+    static void internalHandler(Exception ex, bool isInner = false)
     {
         if (SimpleExceptionTypes.Contains(ex.GetType()))
         {
-            if (inner)
-                Error.WriteLine(Indent(ex.Message));
+            if (isInner)
+                Error.WriteLine(indent(ex.Message));
             else
                 Error.WriteLine("× " + ex.Message);
             if (ex.InnerException != null)
-                Handler(ex.InnerException, true);
+                internalHandler(ex.InnerException, true);
         }
-        else if (!inner || !IgnoredInnerExceptionTypes.Any(t => inner.GetType().IsAssignableTo(t)))
+        else if (!isInner || !IgnoredInnerExceptionTypes.Any(t => ex.GetType().IsAssignableTo(t)))
         {
-            if (inner)
-                Error.WriteLine(Indent(getString(ex)));
+            if (isInner)
+                Error.WriteLine(indent(getString(ex)));
             else
                 Error.WriteLine(getString(ex));
         }
@@ -62,7 +62,7 @@ public static class ErrorUtils
             .Take(ExceptionMaxLines));
     }
 
-    static string Indent(string str)
+    static string indent(string str)
     {
         return IndentPrefix + str.ReplaceLineEndings(IndentPrefix + Environment.NewLine);
     }

@@ -19,7 +19,7 @@ public class JavaRuntime : IDisposable
         _storage = storage;
         var dirs = Directory.GetDirectories(storage.WorkSpace);
         if (dirs.Length == 0)
-            throw new Exception("无法创建JAVA运行环境");
+            throw new Exception("无法创建Java运行环境");
 
         if (dirs.Length == 1)
         {

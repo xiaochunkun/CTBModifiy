@@ -16,9 +16,9 @@ public static class MirrorManager
     public static IEnumerable<Uri> GetUrls(Uri uri)
     {
         if (HttpConfigService.Proxy != null)
-            return Mirrors.Where(m => !m.CN).SelectMany(m => m.ResolveMirrors(uri)).Append(uri);
+            return Mirrors.Where(m => !m.CN).SelectMany(m => m.GetMirrors(uri)).Append(uri);
         else
-            return Mirrors.SelectMany(m => m.ResolveMirrors(uri)).Append(uri);
+            return Mirrors.SelectMany(m => m.GetMirrors(uri)).Append(uri);
     }
     public static IWebProxy WrapWebProxy(IWebProxy proxy) => proxy; /* new BypassMirrorProxy(proxy); */
 

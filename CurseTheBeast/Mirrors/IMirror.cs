@@ -6,7 +6,7 @@ namespace CurseTheBeast.Mirrors;
 public interface IMirror
 {
     bool CN { get; }
-    IEnumerable<Uri> ResolveMirrors(Uri originalUri);
+    IEnumerable<Uri> GetMirrors(Uri originalUri);
     bool Hit(Uri originalUri);
 }
 
@@ -54,7 +54,7 @@ public abstract class HostReplacementMirror : IMirror
         return _replaceTable.ContainsKey(originalUri.Host);
     }
 
-    public virtual IEnumerable<Uri> ResolveMirrors(Uri originalUri)
+    public virtual IEnumerable<Uri> GetMirrors(Uri originalUri)
     {
         if (!_replaceTable.TryGetValue(originalUri.Host, out var hostList))
             return Enumerable.Empty<Uri>();

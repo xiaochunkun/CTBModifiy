@@ -13,15 +13,15 @@ public static class CurseforgeModpackExtensions
     public static async Task PackCurseforgeAsync(this FTBModpack pack, Stream stream, bool full, CancellationToken ct = default)
     {
         using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, UTF8);
-        await archive.WriteAssetsAsync(pack, full, ct);
-        await archive.WriteManifestAsync(pack, full, ct);
-        await archive.WriteDescriptionAsync(pack, ct);
-        await archive.SetCommentAsync(pack, full, ct);
-        await archive.WriteReadmeMdAsync(pack, ct);
-        await archive.WriteIconAsync(pack, ct);
+        await archive.writeAssetsAsync(pack, full, ct);
+        await archive.writeManifestAsync(pack, full, ct);
+        await archive.writeDescriptionAsync(pack, ct);
+        await archive.setCommentAsync(pack, full, ct);
+        await archive.writeReadmeMdAsync(pack, ct);
+        await archive.writeIconAsync(pack, ct);
     }
 
-    static async Task WriteManifestAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
+    static async Task writeManifestAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
     {
         var manifest = new
         {
@@ -69,7 +69,7 @@ public static class CurseforgeModpackExtensions
             await archive.WriteJsonFileAsync("overrides/unreachable-files.json", unreachableFiles, ct);
     }
 
-    static async Task WriteAssetsAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
+    static async Task writeAssetsAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
     {
         foreach (var file in (full ? pack.Files.ClientFullFiles : pack.Files.ClientFilesWithoutCurseforge))
         {
@@ -78,7 +78,7 @@ public static class CurseforgeModpackExtensions
         }
     }
 
-    static async Task WriteDescriptionAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
+    static async Task writeDescriptionAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
     {
         var sb = new StringBuilder();
         sb.AppendLine("<ul>");
@@ -89,7 +89,7 @@ public static class CurseforgeModpackExtensions
         await archive.WriteTextFileAsync("modlist.html", sb.ToString(), ct);
     }
 
-    static Task SetCommentAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
+    static Task setCommentAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
     {
         var comment = new StringBuilder();
 
@@ -106,7 +106,7 @@ public static class CurseforgeModpackExtensions
         return Task.CompletedTask;
     }
 
-    static async Task WriteReadmeMdAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
+    static async Task writeReadmeMdAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
     {
         if (pack.ReadMe == null)
             return;
@@ -114,7 +114,7 @@ public static class CurseforgeModpackExtensions
         await archive.WriteTextFileAsync("overrides/README.md", pack.ReadMe, ct);
     }
 
-    static async Task WriteIconAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
+    static async Task writeIconAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
     {
         if (pack.Icon == null)
             return;

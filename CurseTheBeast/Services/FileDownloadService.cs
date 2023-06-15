@@ -106,7 +106,7 @@ public static class FileDownloadService
         }
     }
 
-    sealed class MyTaskDescriptionColumn : ProgressColumn
+    class MyTaskDescriptionColumn : ProgressColumn
     {
         protected override bool NoWrap => true;
         readonly int _width;
@@ -192,7 +192,7 @@ public static class FileDownloadService
                     Overflow = Overflow.Ellipsis,
                 };
             else if (type == ProgressType.SingleFile)
-                return new Text($"{DataSizeUtils.Normalize(task.Value, task.MaxValue)}/{DataSizeUtils.Normalize(task.MaxValue, task.MaxValue)}", Normal)
+                return new Text($"{DataSizeUtils.Humanize(task.Value, task.MaxValue)}/{DataSizeUtils.Humanize(task.MaxValue, task.MaxValue)}", Normal)
                 {
                     Justification = Justify.Center,
                     Overflow = Overflow.Ellipsis
@@ -214,7 +214,7 @@ public static class FileDownloadService
 
         public override IRenderable Render(RenderOptions options, ProgressTask task, TimeSpan deltaTime)
         {
-            _baseColumn.CompletedStyle = GetStyle(task);
+            _baseColumn.CompletedStyle = getStyle(task);
             _baseColumn.RemainingStyle = Low;
             return _baseColumn.Render(options, task, deltaTime);
         }
@@ -232,7 +232,7 @@ public static class FileDownloadService
 
         public override IRenderable Render(RenderOptions options, ProgressTask task, TimeSpan deltaTime)
         {
-            _baseColumn.Style = GetStyle(task);
+            _baseColumn.Style = getStyle(task);
             return _baseColumn.Render(options, task, deltaTime);
         }
 
@@ -242,7 +242,7 @@ public static class FileDownloadService
         }
     }
 
-    static Style GetStyle(ProgressTask task)
+    static Style getStyle(ProgressTask task)
     {
         var type = task.State.Get<ProgressType>("type");
         if (type == ProgressType.General)

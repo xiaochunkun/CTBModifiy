@@ -22,7 +22,7 @@ public abstract class AbstractModServerInstaller : IDisposable
     }
 
     /// <summary>
-    /// 不需要时才返回null，获取失败直接throw
+    /// 不需要时才返回空，获取失败直接throw
     /// </summary>
     public virtual Task<IReadOnlyCollection<FileEntry>> ResolveInstallerAsync(CancellationToken ct = default)
     {

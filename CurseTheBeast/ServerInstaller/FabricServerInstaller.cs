@@ -13,8 +13,8 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
 {
     const string LegacyInstallerVersion = "0.11.2";
     const string DefaultLauncherManifestMainClass = "net.fabricmc.loader.launch.server.FabricServerLauncher";
-    const string servicesDir = "META-INF/services/";
-    const string manifestPath = "META-INF/MANIFEST.MF";
+    const string ServicesDir = "META-INF/services/";
+    const string ManifestFile = "META-INF/MANIFEST.MF";
 
     public override string Name => $"Fabric";
 
@@ -125,7 +125,7 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
                     continue;
 
                 // 服务列表
-                if (entry.FullName.StartsWith(servicesDir) && entry.FullName.IndexOf('/', servicesDir.Length) < 0)
+                if (entry.FullName.StartsWith(ServicesDir) && entry.FullName.IndexOf('/', ServicesDir.Length) < 0)
                 {
                     using var stream = entry.Open();
                     using var reader = new StreamReader(stream, UTF8);
@@ -147,7 +147,7 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
                     }
                 }
                 // 签名文件
-                else if (SignatureFileReg().IsMatch(entry.FullName))
+                else if (JarSignatureFileNameReg().IsMatch(entry.FullName))
                 {
 
                 }
@@ -188,7 +188,7 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
 
     async Task<string> getLauncherMainClass()
     {
-        var loader = _libraries!.FirstOrDefault(l => Regex.IsMatch(l.Artifact.Id, $@"net\.fabricmc:fabric-loader:.*", RegexOptions.IgnoreCase));
+        var loader = _libraries!.FirstOrDefault(l => FabricLoaderJarNameReg().IsMatch(l.Artifact.Id));
         if (loader == null)
             return DefaultLauncherManifestMainClass;
 
@@ -204,5 +204,8 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
     }
 
     [GeneratedRegex("META-INF/[^/]+\\.(SF|DSA|RSA|EC)", RegexOptions.IgnoreCase)]
-    private static partial Regex SignatureFileReg();
+    private static partial Regex JarSignatureFileNameReg();
+
+    [GeneratedRegex(@"net\.fabricmc:fabric-loader:.*", RegexOptions.IgnoreCase)]
+    private static partial Regex FabricLoaderJarNameReg();
 }

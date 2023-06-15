@@ -3,7 +3,7 @@
 
 public static class DataSizeUtils
 {
-    public static string Normalize(double size, double total)
+    public static string Humanize(double size, double total)
     {
         if (total < 768)
             return $"{size}B";

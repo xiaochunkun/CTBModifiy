@@ -130,7 +130,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         return mavenFile;
     }
 
-    public async ValueTask<JsonNode> getJsonInZip(ZipArchive zip, string entryName)
+    async ValueTask<JsonNode> getJsonInZip(ZipArchive zip, string entryName)
     {
         var entry = zip.GetEntry(entryName) ?? throw new Exception($"不支持forge-{GameVersion}-{LoaderVersion}服务端预安装");
         using var stream = entry.Open();

@@ -11,7 +11,7 @@ public class FTBFileEntry : FileEntry
     public CurseforgeInfo? Curseforge { get; }
 
     public FTBFileEntry(ModpackManifest.File file)
-        : base(RepoType.Asset, GetAssetCachePath(file.id))
+        : base(RepoType.Asset, getAssetCachePath(file.id))
     {
         Id = file.id;
         WithSha1(file.sha1);
@@ -37,7 +37,7 @@ public class FTBFileEntry : FileEntry
         };
     }
 
-    static string[] GetAssetCachePath(long id)
+    static string[] getAssetCachePath(long id)
     {
         return new[] { ((byte)(id & 0xFF)).ToString("x2"), id.ToString("x2") };
     }
