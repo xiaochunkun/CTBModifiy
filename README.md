@@ -1,10 +1,10 @@
 CurseTheBeast
 ==============
 
-**This project is only for areas where the FTB APP does not work well due to the network environment. Please do not propose i18n support.**
+**This project is only for areas where FTB APP does not work well due to the network environment. Please do not propose i18n support.**
 
 ## 介绍
-一款轻量级FTB整合包下载工具。有以下特性：
+一款开源、轻量、跨平台的FTB整合包下载工具。有以下特性：
 
 - 打包为Curseforge整合包格式，主流启动器都能导入安装。
 - 支持下载安装服务端，方便开服。
@@ -13,7 +13,7 @@ CurseTheBeast
 
 ## 使用说明
 
-两种使用方式
+两种使用方式，按个人喜好选择
 
 - **双击打开，按照引导操作**
 
@@ -35,12 +35,19 @@ CurseTheBeast
 
 ![](doc/img/installation.jpg)
 
+**注意根据MC版本选择正确的Java版本运行**
+- 1.16以下用Java8运行（不考虑远古版本）
+- 1.16.x用Java8或Java11运行（视具体情况而定）
+- 1.17.x用Java16运行
+- 1.18及更高版本用Java17运行
+
 ## 常见问题
 - 整合包文件非常多时，获取清单会很慢（如FTB Interactions）。开启代理即可。
 - 偶尔会有文件下载失败，自动重试三次后报错崩溃。一般只要重开就能解决，开启代理更好。
 - 服务端包含了一些客户端的文件？说明FTB官方没有把这些文件标记为ClientOnly，用官方下载器一样会下载到这些。（一般不影响使用）
 - 有些mod作者删库跑路，导致部分文件无法下载，需手动处理。请留意控制台输出的信息和包里的“unreachable-files.json”文件。
 - 1.12.2之前的版本年久失修，本工具仅保证正确下载安装，其它问题需自行解决。
+- 有些mod在主线程上检查更新，导致游戏启动非常慢。启动期间断开网络即可解决。
 
 ## 镜像源
 
