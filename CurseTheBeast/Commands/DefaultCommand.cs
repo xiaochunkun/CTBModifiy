@@ -51,11 +51,11 @@ public class DefaultCommand : AsyncCommand
         return await selectModpack(result, ct);
     }
 
-    async Task<int> selectModpack(IReadOnlyList<(int Id, string Name, int update)> packs, CancellationToken ct)
+    async Task<int> selectModpack(IReadOnlyList<(int Id, string Name)> packs, CancellationToken ct)
     {
         if (packs.Count > 1)
         {
-            packs = packs.OrderByDescending(p => p.update).ToArray();
+            packs = packs.OrderByDescending(p => p.Id).ToArray();
             var index = prompt("选择整合包:", packs.Select(p => $"{p.Name} （{p.Id}）").ToArray());
             return await selectVersions(packs[index].Id, ct);
         }

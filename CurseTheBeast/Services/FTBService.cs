@@ -17,11 +17,11 @@ public class FTBService : IDisposable
         _ftb = new FTBApiClient();
     }
 
-    public Task<IReadOnlyList<(int Id, string Name, int update)>> GetFeaturedModpacksAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<(int Id, string Name)>> GetFeaturedModpacksAsync(CancellationToken ct = default)
     {
         return Focused.StatusAsync("获取热门整合包", async ctx =>
             {
-                var result = new List<(int, string, int)>();
+                var result = new List<(int, string)>();
                 var featuredPackIds = (await _ftb.GetFeaturedAsync(ct)).packs.ToHashSet();
                 var total = featuredPackIds.Count;
                 await LocalStorage.Persistent.GetOrUpdateObject("list", async cache =>
@@ -30,7 +30,7 @@ public class FTBService : IDisposable
                     foreach (var (id, item) in cache.Items)
                     {
                         if (featuredPackIds.Remove(id))
-                            result.Add((id, item.Name, item.Update));
+                            result.Add((id, item.Name));
                     }
 
                     if (featuredPackIds.Count > 0)
@@ -39,22 +39,22 @@ public class FTBService : IDisposable
                         {
                             ctx.Status = Focused.Text($"获取热门整合包 {result.Count}/{total}");
                             var pack = await _ftb.GetInfoAsync(id, ct);
-                            cache.Items[pack.id] = new() { Name = pack.name, Update = pack.updated };
-                            result.Add((pack.id, pack.name, pack.updated));
+                            cache.Items[pack.id] = new() { Name = pack.name };
+                            result.Add((pack.id, pack.name));
                         }
                     }
                     return cache;
                 }, ModpackCache.ModpackCacheContext.Default.ModpackCache, ct);
-                return (IReadOnlyList<(int Id, string Name, int Update)>)result;
+                return (IReadOnlyList<(int Id, string Name)>)result;
             });
     }
 
-    public Task<IReadOnlyList<(int Id, string Name, int Update)>> SearchAsync(string keyword, CancellationToken ct = default)
+    public Task<IReadOnlyList<(int Id, string Name)>> SearchAsync(string keyword, CancellationToken ct = default)
     {
         return Focused.StatusAsync("搜索中", async ctx =>
             {
                 var result = await _ftb.SearchAsync(keyword, ct);
-                return result.packs?.Select(p => (p.id, p.name, p.updated)).ToArray() ?? Array.Empty<(int, string, int)>() as IReadOnlyList<(int, string, int)> ;
+                return result.packs?.Select(p => (p.id, p.name)).ToArray() ?? Array.Empty<(int, string)>() as IReadOnlyList<(int, string)> ;
             });
     }
 

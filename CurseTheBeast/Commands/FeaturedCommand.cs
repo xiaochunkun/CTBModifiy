@@ -19,7 +19,7 @@ public class FeaturedCommand : AsyncCommand<HttpOptions>
         var table = new Table();
         table.AddColumn(new TableColumn("Id"));
         table.AddColumn(new TableColumn("Name"));
-        foreach (var item in results.OrderByDescending(item => item.update))
+        foreach (var item in results.OrderByDescending(item => item.Id))
         {
             table.AddRow(
                 new Text(item.Id.ToString()),
