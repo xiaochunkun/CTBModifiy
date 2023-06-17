@@ -10,6 +10,12 @@ namespace CurseTheBeast.Services;
 
 public class FTBService : IDisposable
 {
+    static readonly IReadOnlySet<int> BlackList = new HashSet<int>() 
+    {
+        104,
+        81
+    };
+
     readonly FTBApiClient _ftb;
 
     public FTBService()
@@ -46,6 +52,104 @@ public class FTBService : IDisposable
                     return cache;
                 }, ModpackCache.ModpackCacheContext.Default.ModpackCache, ct);
                 return (IReadOnlyList<(int Id, string Name)>)result;
+            });
+    }
+
+    public async Task<IReadOnlyList<(int Id, string Name)>> ListAsync(bool autoClear, CancellationToken ct)
+    {
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+
+        _ = Task.Run(async () =>
+        {
+            var ct = cts.Token;
+            try
+            {
+                while (!ct.IsCancellationRequested)
+                {
+                    if (Console.KeyAvailable && Console.ReadKey().Key == ConsoleKey.Spacebar)
+                    {
+                        cts.Cancel();
+                        break;
+                    }
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(50), ct);
+                }
+            }
+            catch(Exception)
+            {
+
+            }
+        }, cts.Token);
+
+        var idList = await Focused.StatusAsync("获取整合包列表", async ctx => await _ftb.GetListAsync(ct));
+        var cache = await LocalStorage.Persistent.GetObjectAsync<ModpackCache>("list", ModpackCache.ModpackCacheContext.Default.ModpackCache);
+        cache ??= new();
+
+        return await AnsiConsole.Live(Focused.Markup("正在获取条目"))
+            .AutoClear(autoClear)
+            .StartAsync(async ctx =>
+            {
+                var ct = cts.Token;
+                ctx.Refresh();
+
+                var table = new Table();
+                table.AddColumn(new TableColumn("ID"));
+                table.AddColumn(new TableColumn("名称"));
+
+                try
+                {
+                    foreach (var id in idList.packs)
+                    {
+                        if (BlackList.Contains(id))
+                            continue;
+                        if (cache.Items.TryGetValue(id, out var item))
+                        {
+                            table.AddRow(id.ToString(), item.Name);
+                        }
+                        else
+                        {
+                            var info = await _ftb.GetInfoAsync(id, ct);
+                            table.AddRow(id.ToString(), info.name);
+                            cache.Items[id] = new()
+                            {
+                                Name = info.name,
+                            };
+                        }
+
+                        ctx.UpdateTarget(new Rows(table, Focused.Markup("正在获取更多条目，按空格键中止")));
+                        ctx.Refresh();
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (e is not OperationCanceledException && e.InnerException is not OperationCanceledException)
+                        throw;
+                    if(!ct.IsCancellationRequested)
+                        throw;
+                }
+                finally
+                {
+                    if (!autoClear)
+                    {
+                        ctx.UpdateTarget(table);
+                        ctx.Refresh();
+                    }
+                }
+
+                if (!ct.IsCancellationRequested)
+                {
+                    try
+                    {
+                        cts.Cancel();
+                    }
+                    catch(Exception)
+                    {
+
+                    }
+                }
+
+                await LocalStorage.Persistent.SaveObjectAsync<ModpackCache>("list", cache, ModpackCache.ModpackCacheContext.Default.ModpackCache);
+                return cache.Items.Select(pair => (pair.Key, pair.Value.Name)).ToArray();
             });
     }
 

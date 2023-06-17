@@ -21,20 +21,28 @@ public class DefaultCommand : AsyncCommand
         var op = prompt("按上下键选择，回车确认:",
             "查看热门整合包",
             "搜索整合包",
-            "输入整合包ID");
+            "输入整合包ID",
+            "列出所有整合包");
 
-        switch(op)
+        return op switch
         {
-            case 0: return await selectFeaturedModpack();
-            case 1: return await searchModpack();
-            case 2: return await inputId();
-            default:return -1;
-        }
+            0 => await selectFeaturedModpack(),
+            1 => await searchModpack(),
+            2 => await inputId(),
+            3 => await listModpack(),
+            _ => -1,
+        };
     }
 
     async Task<int> selectFeaturedModpack(CancellationToken ct = default)
     {
         var packs = await _ftb.GetFeaturedModpacksAsync();
+        return await selectModpack(packs, ct);
+    }
+
+    async Task<int> listModpack(CancellationToken ct = default)
+    {
+        var packs = await _ftb.ListAsync(true, ct);
         return await selectModpack(packs, ct);
     }
 

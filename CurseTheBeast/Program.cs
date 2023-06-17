@@ -26,6 +26,7 @@ app.Configure(config =>
     config.AddCommand<InspectCommand>("inspect");
     config.AddCommand<FeaturedCommand>("featured");
     config.AddCommand<SearchCommand>("search");
+    config.AddCommand<ListCommand>("list");
     // config.AddCommand<DiffCommand>("diff");
     config.SetExceptionHandler(ErrorUtils.Handler);
 });
