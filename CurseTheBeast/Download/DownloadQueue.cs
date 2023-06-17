@@ -12,7 +12,13 @@ namespace CurseTheBeast.Download;
 public class DownloadQueue : IDisposable
 {
     public const int TryTimes = 3;
-    public const int Timeout = 30;
+    public const int ConnectionTimeout = 30;
+    public const int ReadTimeout = 5;
+    public const string Accept = "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2";
+    public const string AcceptLanguage = "zh_CN";
+    public const string Pragma = "no-cache";
+    public const string Connection = "keep-alive";
+    public const string AcceptEncoding = "br, gzip, deflate";
 
     public record TaskProgressedEventArgs(int? Total, int Received, int Progressed);
 
@@ -100,7 +106,7 @@ public class DownloadQueue : IDisposable
                 while (true)
                 {
                     using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                    cts.CancelAfter(TimeSpan.FromSeconds(5));
+                    cts.CancelAfter(TimeSpan.FromSeconds(ReadTimeout));
                     var progressed = await rspStream.ReadAsync(buffer, cts.Token);
                     if (progressed == 0)
                         break;
@@ -114,7 +120,7 @@ public class DownloadQueue : IDisposable
             {
                 file.DeleteTemp();
 
-                if (ct.IsCancellationRequested)
+                if (ex is OperationCanceledException && ct.IsCancellationRequested)
                     throw;
 
                 if (i < uriList.Length)
@@ -122,14 +128,21 @@ public class DownloadQueue : IDisposable
 
                 if (ex is HttpRequestException hre)
                 {
-                    // 400系状态码视为unreachable
-                    if (hre.StatusCode != null && ((int)hre.StatusCode.Value) / 100 == 4)
+                    if (hre.StatusCode != null)
                     {
-                        if (file.Required)
-                            throw new Exception($"下载失败（${(int)hre.StatusCode}）: {file.Url}", ex);
-                        else
-                            file.SetUnreachable();
-                        break;
+                        // 400系状态码除429外全部视为unreachable
+                        if (hre.StatusCode == HttpStatusCode.TooManyRequests)
+                        {
+                            throw new Exception("下载请求太频繁，请开启代理或稍后再试。");
+                        }
+                        else if (((int)hre.StatusCode.Value) / 100 == 4)
+                        {
+                            if (file.Required)
+                                throw new Exception($"下载失败（${(int)hre.StatusCode}）: {file.Url}", ex);
+                            else
+                                file.SetUnreachable();
+                            break;
+                        }
                     }
                 }
 
@@ -158,16 +171,16 @@ public class DownloadQueue : IDisposable
             Proxy = HttpConfigService.Proxy,
         })
         {
-            Timeout = TimeSpan.FromSeconds(Timeout),
+            Timeout = TimeSpan.FromSeconds(ConnectionTimeout),
             DefaultRequestVersion = HttpVersion.Version11
         };
-        cli.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2");
+        cli.DefaultRequestHeaders.TryAddWithoutValidation("Accept", Accept);
         cli.DefaultRequestHeaders.UserAgent.ParseAdd(HttpConfigService.UserAgent);
-        cli.DefaultRequestHeaders.AcceptLanguage.ParseAdd("zh_CN");
+        cli.DefaultRequestHeaders.AcceptLanguage.ParseAdd(AcceptLanguage);
         cli.DefaultRequestHeaders.CacheControl = new() { NoCache = true };
-        cli.DefaultRequestHeaders.Pragma.ParseAdd("no-cache");
-        cli.DefaultRequestHeaders.Connection.ParseAdd("keep-alive");
-        cli.DefaultRequestHeaders.AcceptEncoding.ParseAdd("br, gzip, deflate");
+        cli.DefaultRequestHeaders.Pragma.ParseAdd(Pragma);
+        cli.DefaultRequestHeaders.Connection.ParseAdd(Connection);
+        cli.DefaultRequestHeaders.AcceptEncoding.ParseAdd(AcceptEncoding);
         return cli;
     }
 

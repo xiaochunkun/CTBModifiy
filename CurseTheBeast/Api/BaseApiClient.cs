@@ -121,6 +121,8 @@ public abstract class BaseApiClient : IDisposable
             }
             catch (Exception e)
             {
+                if (e is OperationCanceledException && ct.IsCancellationRequested)
+                    throw;
                 if (i < uriList.Length)
                     continue;
                 if (i >= _tryTimes)
