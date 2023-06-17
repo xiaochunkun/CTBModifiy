@@ -127,7 +127,7 @@ public class ServerModLoaderService : IDisposable
             {
                 PlatformID.Win32NT => "windows",
                 PlatformID.Unix => "linux",
-                _ => throw new NotSupportedException("服务端预安装失败：不支持当前操作系统")
+                _ => throw new Exception("服务端预安装失败：不支持当前操作系统")
             };
             using var api = new AzulApiClient();
             var manifest = (await api.GetZuluPackageAsync(_pack.Runtime.JavaVersion, os, ct)).FirstOrDefault();
@@ -149,7 +149,6 @@ public class ServerModLoaderService : IDisposable
                 }
             }
 
-            var versionString = string.Join('.', manifest.java_version);
             var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.zip";
             return new FileEntry(RepoType.JreArchive, fileName)
                 .SetDownloadable(fileName, manifest.download_url);
