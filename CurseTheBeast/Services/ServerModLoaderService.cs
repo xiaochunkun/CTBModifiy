@@ -134,8 +134,13 @@ public class ServerModLoaderService : IDisposable
             var archiveType = Environment.OSVersion.Platform == PlatformID.Win32NT ? "zip" : "tar.gz";
             var majorVersion = _pack.Runtime.JavaVersion.Substring(0, _pack.Runtime.JavaVersion.IndexOf('.'));
 
-            var baseVersion = (Version: _pack.Runtime.JavaVersion, PkgType: "jre");
-            var versionPairs = new[] { baseVersion, baseVersion with { PkgType = "jdk" } }.AsEnumerable();
+            var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
+            var javaArchiveFile = new FileEntry(RepoType.JreArchive, fileName);
+            if (javaArchiveFile.Validate())
+                return javaArchiveFile;
+
+            var baseVersionPair = (Version: _pack.Runtime.JavaVersion, PkgType: "jre");
+            var versionPairs = new[] { baseVersionPair, baseVersionPair with { PkgType = "jdk" } }.AsEnumerable();
             if (majorVersion == "8")
             {
                 versionPairs = versionPairs.Append((DefaultJava8Version, "jre"))
@@ -155,9 +160,7 @@ public class ServerModLoaderService : IDisposable
             if(pkg == null)
                 throw new Exception($"服务端预安装失败：无法获取Java{_pack.Runtime.JavaVersion}运行环境信息");
 
-            var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
-            return new FileEntry(RepoType.JreArchive, fileName)
-                .SetDownloadable(fileName, pkg.download_url);
+            return javaArchiveFile.SetDownloadable(fileName, pkg.download_url);
         });
         await FileDownloadService.DownloadAsync("下载Java运行环境", new[] { javaArchiveFile }, ct);
 
