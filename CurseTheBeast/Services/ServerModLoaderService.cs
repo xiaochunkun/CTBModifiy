@@ -1,8 +1,10 @@
 ﻿using CurseTheBeast.Api.Azul;
+using CurseTheBeast.Api.Azul.Model;
 using CurseTheBeast.Api.Mojang;
 using CurseTheBeast.ServerInstaller;
 using CurseTheBeast.Services.Model;
 using CurseTheBeast.Storage;
+using System.Runtime.InteropServices;
 
 namespace CurseTheBeast.Services;
 
@@ -18,7 +20,7 @@ public class ServerModLoaderService : IDisposable
     readonly FTBModpack _pack;
     readonly bool _preinstall;
 
-    JavaRuntime? _jre;
+    JavaRuntime? _java;
 
     public ServerModLoaderService(FTBModpack pack, bool preinstall)
     {
@@ -37,10 +39,9 @@ public class ServerModLoaderService : IDisposable
         if (!PreinstallSupported || _installer == null)
             throw new Exception($"不支持预安装{_pack.Runtime.ModLoaderType}-{_pack.Runtime.GameVersion}-{_pack.Runtime.ModLoaderVersion}服务端");
 
-        if(_jre == null)
-            _jre = await GetJreZipFileAsync(ct);
+        _java ??= await GetJavaRuntimeAsync(ct);
         var serverJar = await GetServerJarAsync(ct);
-        var loaderFiles = await GetModLoaderFilesAsync(_jre, serverJar, ct);
+        var loaderFiles = await GetModLoaderFilesAsync(_java, serverJar, ct);
 
         Success.WriteLine("√ 服务端预安装完成");
         return loaderFiles;
@@ -68,7 +69,7 @@ public class ServerModLoaderService : IDisposable
         return Array.Empty<FileEntry>();
     }
 
-    public async Task<IReadOnlyCollection<FileEntry>> GetModLoaderFilesAsync(JavaRuntime jre, FileEntry serverJar, CancellationToken ct = default)
+    public async Task<IReadOnlyCollection<FileEntry>> GetModLoaderFilesAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
     {
         var installerJar = await Focused.StatusAsync($"解析{_installer!.Name}安装器", async ctx => await _installer.ResolveInstallerAsync(ct));
         if (installerJar.Count > 0)
@@ -80,7 +81,7 @@ public class ServerModLoaderService : IDisposable
             await FileDownloadService.DownloadAsync($"下载{_installer.Name}依赖", deps, ct);
 
         return await Focused.StatusAsync($"预安装{_installer.Name}服务端", 
-            async ctx => await _installer.PreInstallAsync(jre, serverJar));
+            async ctx => await _installer.PreInstallAsync(java, serverJar));
     }
 
     public AbstractModServerInstaller? GetInstaller()
@@ -119,9 +120,9 @@ public class ServerModLoaderService : IDisposable
         return serverJarFile;
     }
 
-    public async Task<JavaRuntime> GetJreZipFileAsync(CancellationToken ct = default)
+    public async Task<JavaRuntime> GetJavaRuntimeAsync(CancellationToken ct = default)
     {
-        var jreZipFile = await Focused.StatusAsync("获取Java运行环境信息", async ctx =>
+        var javaArchiveFile = await Focused.StatusAsync("获取Java运行环境信息", async ctx =>
         {
             var os = Environment.OSVersion.Platform switch
             {
@@ -129,41 +130,46 @@ public class ServerModLoaderService : IDisposable
                 PlatformID.Unix => "linux",
                 _ => throw new Exception("服务端预安装失败：不支持当前操作系统")
             };
-            using var api = new AzulApiClient();
-            var manifest = (await api.GetZuluPackageAsync(_pack.Runtime.JavaVersion, os, ct)).FirstOrDefault();
-            if (manifest == null)
-            {
-                var majorVersion = int.Parse(_pack.Runtime.JavaVersion.Substring(0, _pack.Runtime.JavaVersion.IndexOf('.')));
-                if (majorVersion == 8)
-                {
-                    manifest = (await api.GetZuluPackageAsync(DefaultJava8Version, os, ct)).FirstOrDefault();
-                }
-                else
-                {
-                    // 下载指定majorVersion的最新版
-                    manifest = (await api.GetZuluPackageAsync(majorVersion.ToString(), os, ct)).FirstOrDefault();
-                }
-                if (manifest == null)
-                {
-                    throw new Exception($"服务端预安装失败：无法获取Java{_pack.Runtime.JavaVersion}运行环境信息");
-                }
-            }
+            var arch = RuntimeInformation.ProcessArchitecture.ToString().ToLower();
+            var archiveType = Environment.OSVersion.Platform == PlatformID.Win32NT ? "zip" : "tar.gz";
+            var majorVersion = _pack.Runtime.JavaVersion.Substring(0, _pack.Runtime.JavaVersion.IndexOf('.'));
 
-            var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.zip";
+            var baseVersion = (Version: _pack.Runtime.JavaVersion, PkgType: "jre");
+            var versionPairs = new[] { baseVersion, baseVersion with { PkgType = "jdk" } }.AsEnumerable();
+            if (majorVersion == "8")
+            {
+                versionPairs = versionPairs.Append((DefaultJava8Version, "jre"))
+                    .Append((DefaultJava8Version, "jdk"));
+            }
+            versionPairs = versionPairs.Append((majorVersion, "jre"))
+                    .Append((majorVersion, "jdk"));
+
+            using var api = new AzulApiClient();
+            ZuluPackage? pkg = null;
+            foreach (var pair in versionPairs)
+            {
+                pkg = (await api.GetZuluPackageAsync(pair.Version, os, arch, archiveType, pair.PkgType, ct)).FirstOrDefault();
+                if (pkg != null)
+                    break;
+            }
+            if(pkg == null)
+                throw new Exception($"服务端预安装失败：无法获取Java{_pack.Runtime.JavaVersion}运行环境信息");
+
+            var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
             return new FileEntry(RepoType.JreArchive, fileName)
-                .SetDownloadable(fileName, manifest.download_url);
+                .SetDownloadable(fileName, pkg.download_url);
         });
-        await FileDownloadService.DownloadAsync("下载Java运行环境", new[] { jreZipFile }, ct);
+        await FileDownloadService.DownloadAsync("下载Java运行环境", new[] { javaArchiveFile }, ct);
 
         return Focused.Status("准备Java运行环境", ctx =>
         {
-            return JavaRuntime.FromZip(jreZipFile.LocalPath);
+            return JavaRuntime.FromArchive(javaArchiveFile.LocalPath);
         });
     }
 
     public void Dispose()
     {
         _installer?.Dispose();
-        _jre?.Dispose();
+        _java?.Dispose();
     }
 }

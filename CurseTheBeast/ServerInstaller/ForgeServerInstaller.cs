@@ -137,7 +137,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         return (await JsonSerializer.DeserializeAsync<JsonNode>(stream))!;
     }
 
-    public override async Task<IReadOnlyCollection<FileEntry>> PreInstallAsync(JavaRuntime jre, FileEntry serverJar, CancellationToken ct = default)
+    public override async Task<IReadOnlyCollection<FileEntry>> PreInstallAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
     {
         // 复制服务端本体
         var serverJarPath = Path.Combine(_tempStorage.WorkSpace, _serverJarPath);
@@ -153,8 +153,8 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         }
 
         // 执行安装
-        var ret = await jre.ExecuteAsync(_installer.LocalPath, new[] { "--installServer", "." }, 
-            _tempStorage.WorkSpace, null, ct);
+        var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", "." }, 
+            _tempStorage.WorkSpace, ct);
         if (ret != 0)
             throw new Exception($"forge-{GameVersion}-{LoaderVersion}服务端预安装失败");
 
@@ -167,17 +167,17 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         {
             if (File.Exists(Path.Combine(_tempStorage.WorkSpace, _loaderFileName)))
             {
-                launcherScriptName = JarLauncherUtils.GenerateScript(_tempStorage.WorkSpace, jre.DistName, _loaderFileName, title, Ram).ArchiveEntryName;
-                files.AddRange(jre.GetFiles());
+                launcherScriptName = JarLauncherUtils.GenerateScript(_tempStorage.WorkSpace, java.DistName, _loaderFileName, title, Ram).ArchiveEntryName;
+                files.AddRange(await java.GetJreFilesAsync(ct));
             }
         }
         // 修改forge自带脚本
         else
         {
-            launcherScriptName = JarLauncherUtils.InjectForgeScript(_tempStorage.WorkSpace, jre.DistName, title, Ram);
+            launcherScriptName = JarLauncherUtils.InjectForgeScript(_tempStorage.WorkSpace, java.DistName, title, Ram);
             if (launcherScriptName != null)
             {
-                files.AddRange(jre.GetFiles());
+                files.AddRange(await java.GetJreFilesAsync(ct));
             }
         }
 
