@@ -15,10 +15,15 @@ public class LocalStorage : IDisposable
 
     static LocalStorage()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), AppInfo.Name);
+        _tempDir = Path.GetTempPath();
         _tempCounter = 0;
 
-        Persistent = new LocalStorage(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppInfo.Name), true);
+        var dir = Environment.OSVersion.Platform switch
+        {
+            PlatformID.Win32NT => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            _ => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local/share"),
+        };
+        Persistent = new LocalStorage(Path.Combine(dir, AppInfo.Name), true);
     }
 
     public string WorkSpace { get; }
@@ -131,19 +136,19 @@ public class LocalStorage : IDisposable
 
     public static LocalStorage GetTempStorage()
     {
-        return new LocalStorage(Path.Combine(_tempDir, $"{Environment.ProcessId}-{Interlocked.Increment(ref _tempCounter)}"), false);
+        return new LocalStorage(Path.Combine(_tempDir, $"{AppInfo.Name}-{Environment.ProcessId}-{Interlocked.Increment(ref _tempCounter)}"), false);
     }
 
     public static LocalStorage GetTempStorage(string name)
     {
-        return new LocalStorage(Path.Combine(_tempDir, $"{name}-{Random.Shared.NextInt64()}"), false);
+        return new LocalStorage(Path.Combine(_tempDir, $"{AppInfo.Name}-{name}-{Random.Shared.NextInt64()}"), false);
     }
 
     public static void PruneUnusedTemp()
     {
         if (!Directory.Exists(_tempDir))
             return;
-        foreach (var dir in Directory.GetDirectories(_tempDir, "*", SearchOption.TopDirectoryOnly))
+        foreach (var dir in Directory.GetDirectories(_tempDir, $"{AppInfo.Name}*", SearchOption.TopDirectoryOnly))
         {
             if (!Locker.TryAcquire(dir, out var locker))
                 continue;
@@ -153,6 +158,7 @@ public class LocalStorage : IDisposable
             }
             catch(Exception)
             {
+
 
             }
             locker.Dispose();
