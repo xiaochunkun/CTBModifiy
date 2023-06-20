@@ -26,7 +26,7 @@ public class JavaRuntime : IDisposable
         _storage = storage;
         var dirs = Directory.GetDirectories(storage.WorkSpace);
         if (dirs.Length == 0)
-            throw new Exception("无法创建Java运行环境");
+            throw new Exception("未知的JavaHome目录结构");
 
         if (dirs.Length == 1)
         {
@@ -53,7 +53,7 @@ public class JavaRuntime : IDisposable
         {
             if (archivePath.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
             {
-                ZipFile.ExtractToDirectory(archivePath, storage.WorkSpace);
+                ZipFile.ExtractToDirectory(archivePath, storage.WorkSpace, true);
             }
             else if (archivePath.EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
             {
@@ -65,13 +65,13 @@ public class JavaRuntime : IDisposable
             {
                 throw new Exception("不支持的Java压缩包类型：" + Path.GetFileName(archivePath));
             }
+            return new JavaRuntime(storage);
         }
         catch(Exception)
         {
             storage.Dispose();
             throw;
         }
-        return new JavaRuntime(storage);
     }
 
     public Task<int> ExecuteJarAsync(string jarPath, IEnumerable<string>? args, string workDir, CancellationToken ct = default)

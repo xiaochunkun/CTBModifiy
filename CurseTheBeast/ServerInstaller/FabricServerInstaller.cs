@@ -16,13 +16,11 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
     const string ServicesDir = "META-INF/services/";
     const string ManifestFile = "META-INF/MANIFEST.MF";
 
-    public override string Name => $"Fabric";
-
     readonly FabricApiClient _api = new();
     ServerManifest _manifest = null!;
     IReadOnlyList<MavenFileEntry> _libraries = null!;
 
-    LocalStorage _tempStorage = LocalStorage.GetTempStorage("fabric-install");
+    readonly LocalStorage _tempStorage = LocalStorage.GetTempStorage("fabric-install");
 
     public override async Task<IReadOnlyCollection<FileEntry>> ResolveStandaloneLoaderJarAsync(CancellationToken ct = default)
     {

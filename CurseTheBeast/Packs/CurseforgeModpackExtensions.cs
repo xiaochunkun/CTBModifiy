@@ -84,7 +84,7 @@ public static class CurseforgeModpackExtensions
         sb.AppendLine("<ul>");
         foreach (var file in pack.Files.ClientCurseforgeFiles)
             sb.AppendLine($"<li><a href=\"https://www.curseforge.com/projects/{file.Curseforge!.ProjectId}\">{HtmlEncoder.Default.Encode(file.DisplayName!)}</a></li>");
-        sb.AppendLine("/<ul>");
+        sb.AppendLine("</ul>");
 
         await archive.WriteTextFileAsync("modlist.html", sb.ToString(), ct);
     }

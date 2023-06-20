@@ -51,7 +51,7 @@ public class ServerModLoaderService : IDisposable
     {
         if (_installer != null)
         {
-            var installerJar = await Focused.StatusAsync($"获取{_installer.Name}加载器", async ctx => await _installer.ResolveStandaloneLoaderJarAsync(ct));
+            var installerJar = await Focused.StatusAsync($"获取{_pack.Runtime.ModLoaderType}加载器", async ctx => await _installer.ResolveStandaloneLoaderJarAsync(ct));
             if (installerJar != null)
             {
                 try
@@ -71,17 +71,17 @@ public class ServerModLoaderService : IDisposable
 
     public async Task<IReadOnlyCollection<FileEntry>> GetModLoaderFilesAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
     {
-        var installerJar = await Focused.StatusAsync($"解析{_installer!.Name}安装器", async ctx => await _installer.ResolveInstallerAsync(ct));
+        var installerJar = await Focused.StatusAsync($"解析{_pack.Runtime.ModLoaderType}安装器", async ctx => await _installer!.ResolveInstallerAsync(ct));
         if (installerJar.Count > 0)
-            await FileDownloadService.DownloadAsync($"下载{_installer.Name}安装器", installerJar, ct);
+            await FileDownloadService.DownloadAsync($"下载{_pack.Runtime.ModLoaderType}安装器", installerJar, ct);
 
-        var deps = await Focused.StatusAsync($"解析{_installer.Name}依赖", 
-            async ctx => await _installer.ResolveInstallerDependenciesAsync(ct));
+        var deps = await Focused.StatusAsync($"解析{_pack.Runtime.ModLoaderType}依赖", 
+            async ctx => await _installer!.ResolveInstallerDependenciesAsync(ct));
         if(deps.Count > 0)
-            await FileDownloadService.DownloadAsync($"下载{_installer.Name}依赖", deps, ct);
+            await FileDownloadService.DownloadAsync($"下载{_pack.Runtime.ModLoaderType}依赖", deps, ct);
 
-        return await Focused.StatusAsync($"预安装{_installer.Name}服务端", 
-            async ctx => await _installer.PreInstallAsync(java, serverJar));
+        return await Focused.StatusAsync($"预安装{_pack.Runtime.ModLoaderType}服务端", 
+            async ctx => await _installer!.PreInstallAsync(java, serverJar));
     }
 
     public AbstractModServerInstaller? GetInstaller()

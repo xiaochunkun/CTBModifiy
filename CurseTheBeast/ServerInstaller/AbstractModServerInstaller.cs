@@ -5,7 +5,6 @@ namespace CurseTheBeast.ServerInstaller;
 
 public abstract class AbstractModServerInstaller : IDisposable
 {
-    public abstract string Name { get; }
     public string GameVersion { get; set; } = null!;
     public string LoaderVersion { get; set; } = null!;
     public string? ServerName { get; set; }

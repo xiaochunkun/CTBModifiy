@@ -19,9 +19,8 @@ public class ForgeServerInstaller : AbstractModServerInstaller
     string _loaderFileName = null!;
     IReadOnlyCollection<MavenFileEntry> _libraries = null!;
 
-    LocalStorage _tempStorage = LocalStorage.GetTempStorage("forge-install");
+    readonly LocalStorage _tempStorage = LocalStorage.GetTempStorage("forge-install");
 
-    public override string Name => "Forge";
 
     public override async Task<IReadOnlyCollection<FileEntry>> ResolveStandaloneLoaderJarAsync(CancellationToken ct = default)
     {
