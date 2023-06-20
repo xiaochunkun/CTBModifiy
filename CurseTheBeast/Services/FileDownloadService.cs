@@ -23,6 +23,7 @@ public static class FileDownloadService
         progress.RefreshRate = TimeSpan.FromMilliseconds(200);
         progress.AutoRefresh = true;
         progress.HideCompleted = true;
+        progress.AutoClear = true;
         progress.Columns(new ProgressColumn[]
         {
             new MySpinnerColumn(),
