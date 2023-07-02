@@ -75,18 +75,24 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
 
     public override async Task<IReadOnlyCollection<FileEntry>> PreInstallAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
     {
-        serverJar.WithArchiveEntryName("server.jar");
-        var files = new List<FileEntry>();
         var embededLib = new Version(LoaderVersion) <= "0.12.5";
-        var launcherFile = await generateLauncherAsync(embededLib, ct);
 
-        files.Add(launcherFile);
-        files.Add(serverJar);
-        if(!embededLib)
+        var launcherFile = await generateLauncherAsync(embededLib, ct);
+        var jreFiles = await java.GetJreFilesAsync(ct);
+        var scriptFile = JarLauncherUtils.GenerateScript(_tempStorage.WorkSpace, java.DistName, launcherFile.ArchiveEntryName!, ServerName ?? $"Fabric Server {GameVersion} {LoaderVersion}", Ram);
+        serverJar.WithArchiveEntryName("server.jar");
+        var eulaAgreementFile = await GenerateEulaAgreeFileAsync(_tempStorage.WorkSpace, ct);
+
+        var files = new List<FileEntry>
+        {
+            launcherFile,
+            serverJar,
+            scriptFile,
+            eulaAgreementFile
+        };
+        if (!embededLib)
             files.AddRange(_libraries);
-        files.AddRange(await java.GetJreFilesAsync(ct));
-        files.Add(JarLauncherUtils.GenerateScript(_tempStorage.WorkSpace, java.DistName, launcherFile.ArchiveEntryName!, ServerName ?? $"Fabric Server {GameVersion} {LoaderVersion}", Ram));
-        files.Add(await GenerateEulaAgreeFileAsync(_tempStorage.WorkSpace, ct));
+        files.AddRange(jreFiles);
         return files;
     }
 
