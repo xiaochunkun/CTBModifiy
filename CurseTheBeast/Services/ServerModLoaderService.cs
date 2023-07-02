@@ -104,6 +104,11 @@ public class ServerModLoaderService : IDisposable
 
     public async Task<FileEntry> GetServerJarAsync(CancellationToken ct = default)
     {
+        var serverJarFile = new FileEntry(RepoType.ServerJar, $"{_pack.Runtime.GameVersion}.jar")
+            .SetSha1FileRequired();
+        if (serverJarFile.Validate(false))
+            return serverJarFile;
+
         var manifest = await Focused.StatusAsync("解析服务端", async ctx =>
         {
             using var api = new MojangApiClient();
@@ -112,8 +117,7 @@ public class ServerModLoaderService : IDisposable
                 ?? throw new Exception("未知的MC版本：" + _pack.Runtime.GameVersion);
             return await api.GetGameManifestAsync(version.url, ct);
         });
-        var serverJarFile = new FileEntry(RepoType.ServerJar, $"{_pack.Runtime.GameVersion}.jar")
-            .SetDownloadable($"mc-server-{_pack.Runtime.GameVersion}.jar", manifest.downloads.server.url)
+        serverJarFile.SetDownloadable($"mc-server-{_pack.Runtime.GameVersion}.jar", manifest.downloads.server.url)
             .WithSha1(manifest.downloads.server.sha1)
             .WithSize(manifest.downloads.server.size);
         await FileDownloadService.DownloadAsync("下载服务端", new[] { serverJarFile }, ct);
@@ -135,6 +139,7 @@ public class ServerModLoaderService : IDisposable
             var majorVersion = _pack.Runtime.JavaVersion.Substring(0, _pack.Runtime.JavaVersion.IndexOf('.'));
 
             var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
+            // 兼容旧版索引
             var javaArchiveFile = new FileEntry(RepoType.JreArchive, fileName);
             if (javaArchiveFile.Validate())
                 return javaArchiveFile;
@@ -160,7 +165,10 @@ public class ServerModLoaderService : IDisposable
             if(pkg == null)
                 throw new Exception($"服务端预安装失败：无法获取Java{_pack.Runtime.JavaVersion}运行环境信息");
 
-            return javaArchiveFile.SetDownloadable(fileName, pkg.download_url);
+            // 新版索引
+            javaArchiveFile = new FileEntry(RepoType.JreArchive, pkg.name)
+                .SetDownloadable(fileName, pkg.download_url);
+            return javaArchiveFile;
         });
         await FileDownloadService.DownloadAsync("下载Java运行环境", new[] { javaArchiveFile }, ct);
 

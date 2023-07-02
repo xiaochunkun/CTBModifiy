@@ -18,6 +18,7 @@ public class FileEntry
 
     string _sha1FilePath;
     bool _validated = false;
+    bool _isSha1FileRequired = false;
 
     public FileEntry(RepoType repo, params string[] path)
         : this(LocalStorage.Persistent, repo, path)
@@ -74,6 +75,12 @@ public class FileEntry
         return this;
     }
 
+    public FileEntry SetSha1FileRequired()
+    {
+        _isSha1FileRequired = true;
+        return this;
+    }
+
     public FileEntry WithSize(int size)
     {
         Size = size;
@@ -103,19 +110,22 @@ public class FileEntry
         return this;
     }
 
-    public bool ValidateTemp()
+    public bool ValidateTempAndApply()
     {
-        return validateOrDel(new FileInfo(LocalTempPath));
+        if(validateInternal(LocalTempPath, false, true))
+        {
+            File.Move(LocalTempPath, LocalPath, true);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    public bool Validate()
+    public bool Validate(bool deleteOnFailed = true)
     {
-        return _validated = _validated || validateOrDel(new FileInfo(LocalPath));
-    }
-
-    public void ApplyTemp()
-    {
-        File.Move(LocalTempPath, LocalPath, true);
+        return _validated || validateInternal(LocalPath, true, deleteOnFailed);
     }
 
     public void Delete()
@@ -130,51 +140,60 @@ public class FileEntry
             File.Delete(LocalTempPath);
     }
 
-    bool validateOrDel(FileInfo file)
+    bool validateInternal(string filePath, bool strict, bool deleteOnFailed)
     {
+        var file = new FileInfo(filePath);
+        var sha1File = new FileInfo(_sha1FilePath);
+
         if (!file.Exists)
             return false;
 
-        // 如果已提供文件大小且不匹配，直接失败
+        // 已提供文件大小且不匹配
         if (Size != null && file.Length != Size)
         {
-            file.Delete();
+            if(deleteOnFailed)
+                file.Delete();
             return false;
         }
 
-        byte[]? provided = null;
-        if (Sha1 == null)
+        // 获取哈希
+        byte[]? providedSha1 = null;
+        if (Sha1 != null)
         {
-            // 如果未提供Sha1，尝试从文件读取
-            if (File.Exists(_sha1FilePath))
-                provided = File.ReadAllBytes(_sha1FilePath);
+            providedSha1 = Convert.FromHexString(Sha1);
         }
-        else
+        else if (sha1File.Exists)
         {
-            // 如果已提供，直接读取
-            provided = Convert.FromHexString(Sha1);
+            providedSha1 = File.ReadAllBytes(sha1File.FullName);
         }
-
-        using var fs = file.OpenRead();
-        var computed = SHA1.HashData(fs);
-        if (provided != null)
+        else if(strict)
         {
-            // 如果对比失败，删除文件和哈希文件
-            if (!computed.SequenceEqual(provided))
-            {
-                fs.Close();
+            if (deleteOnFailed)
                 file.Delete();
-                if (File.Exists(_sha1FilePath))
-                    File.Delete(_sha1FilePath);
-                return false;
-            }
-        }
-        else
-        {
-            // 如果未读取到哈希，视为成功，并写入哈希
-            File.WriteAllBytes(_sha1FilePath, computed);
+            return false;
         }
 
+        var computedSha1 = calculateSha1(file);
+
+        // 有哈希且不匹配
+        if (providedSha1 != null && !computedSha1.SequenceEqual(providedSha1))
+        {
+            file.Delete();
+            if (sha1File.Exists)
+                sha1File.Delete();
+            return false;
+        }
+
+        if(!sha1File.Exists && (_isSha1FileRequired || providedSha1 == null))
+            File.WriteAllBytes(sha1File.FullName, computedSha1);
+
+        _validated = true;
         return true;
+    }
+
+    static byte[] calculateSha1(FileInfo file)
+    {
+        using var fs = file.OpenRead();
+        return SHA1.HashData(fs);
     }
 }
