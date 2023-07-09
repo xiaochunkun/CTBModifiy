@@ -11,11 +11,14 @@ public class HttpConfigService
     public static IWebProxy? Proxy { get; private set; }
     public static string UserAgent { get; private set; } = $"{AppInfo.Name}/{AppInfo.Version}";
     public static int Thread { get; private set; } = 8;
+    public static string CurseforgeKey { get; private set; } = "$2a$10$KauzeIBqTRY2jwkx64A.Cep7cmWFGGYVncpqvfOCOee/90YPgkgfy";
 
     public static void SetupHttp(DownloadOptions options)
     {
         if (options.Thread != null)
             Thread = options.Thread.Value;
+        if (options.CurseforgeKey != null)
+            CurseforgeKey = options.CurseforgeKey;
         SetupHttp(options as HttpOptions);
     }
 

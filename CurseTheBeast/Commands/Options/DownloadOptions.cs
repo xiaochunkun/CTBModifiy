@@ -21,4 +21,8 @@ public abstract class DownloadOptions : HttpOptions
     [Description("输出目录或文件路径")]
     [CommandOption("-o|--output")]
     public string Output { get; init; } = Environment.CurrentDirectory;
+
+    [Description("Curseforge API Key")]
+    [CommandOption("-k|--curse-key")]
+    public string? CurseforgeKey { get; init; }
 }

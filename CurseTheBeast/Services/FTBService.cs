@@ -240,6 +240,8 @@ public class FTBService : IDisposable
             files.Add(pack.Icon);
 
         await FileDownloadService.DownloadAsync("下载整合包文件", files, ct);
+        await CurseforgeService.TryRecoverUnreachableFiles(files.Where(f => f is FTBFileEntry).Select(f => f as FTBFileEntry)!, ct);
+
         Success.WriteLine("√ 下载完成");
     }
 
