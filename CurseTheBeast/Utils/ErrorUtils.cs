@@ -9,7 +9,7 @@ public static class ErrorUtils
     const string IndentPrefix = "  ";
     const int ExceptionMaxLines = 5;
 
-    static readonly IReadOnlySet<Type> IgnoredInnerExceptionTypes = new HashSet<Type>() 
+    static readonly IReadOnlySet<Type> IgnoredInnerExceptionTypes = new HashSet<Type>()
     {
         typeof(OperationCanceledException),
         typeof(TimeoutException),
@@ -31,7 +31,8 @@ public static class ErrorUtils
         }
         internalHandler(ex, false);
         AnsiConsole.WriteLine();
-        Error.WriteLine("发生了错误");
+        if (!NativeUtils.IsRunningByDoubleClick.Value)
+            Error.WriteLine("发生了错误");
     }
 
     static void internalHandler(Exception ex, bool isInner = false)

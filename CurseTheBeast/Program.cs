@@ -41,7 +41,7 @@ if (NativeUtils.IsRunningByDoubleClick.Value)
     if (ret == 0)
         Focused.Write("按任意键退出...");
     else
-        Error.Write("按任意键退出...");
+        Error.Write("发生了错误，按任意键退出...");
     Console.ReadKey();
 }
 return ret;
