@@ -13,7 +13,7 @@ public class FTBApiClient : BaseApiClient
 
     }
 
-    protected override async Task<TRsp> CallJsonAsync<TRsp>(HttpMethod method, Uri uri, Func<HttpContent>? contentProvider, JsonTypeInfo<TRsp>? type, CancellationToken ct)
+    protected override async Task<TRsp> CallJsonAsync<TRsp>(HttpMethod method, Uri uri, Func<HttpContent>? contentProvider, JsonTypeInfo? type, CancellationToken ct)
     {
         var rsp = await base.CallJsonAsync<TRsp>(method, uri, contentProvider, type, ct);
         if (rsp is FTBRsp ftbRsp && ftbRsp.status != null && ftbRsp.status != RspStatusSuccess)

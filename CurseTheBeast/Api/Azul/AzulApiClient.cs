@@ -12,7 +12,7 @@ public class AzulApiClient : BaseApiClient
 
     public Task<ZuluPackage[]> GetZuluPackageAsync(string javaVersion, string os, string arch, string archiveType, string pkgType, CancellationToken ct = default)
     { 
-        return GetAsync(new Uri($"https://api.azul.com/metadata/v1/zulu/packages/?" +
+        return GetAsync<ZuluPackage[]>(new Uri($"https://api.azul.com/metadata/v1/zulu/packages/?" +
             $"java_version={javaVersion}&" +
             $"os={os}&" +
             $"arch={arch}&" +

@@ -69,7 +69,7 @@ public class FileEntry
         return this;
     }
 
-    public FileEntry WithSha1(string sha1)
+    public FileEntry WithSha1(string? sha1)
     {
         Sha1 = sha1;
         return this;
@@ -107,6 +107,7 @@ public class FileEntry
     {
         DisplayName = displayName;
         Url = url;
+        Unreachable = false;
         return this;
     }
 

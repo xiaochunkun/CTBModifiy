@@ -68,15 +68,15 @@ public abstract class BaseApiClient : IDisposable
 
     }
 
-    protected virtual async Task<TRsp> GetAsync<TRsp>(Uri uri, JsonTypeInfo<TRsp>? ctx, CancellationToken ct)
+    protected virtual async Task<TRsp> GetAsync<TRsp>(Uri uri, JsonTypeInfo? ctx, CancellationToken ct)
         => await CallJsonAsync<TRsp>(HttpMethod.Get, uri, null, ctx, ct);
 
-    protected virtual async Task<TRsp> PostAsync<TRsp>(Uri uri, Func<HttpContent> contentProvider, JsonTypeInfo<TRsp>? type, CancellationToken ct)
+    protected virtual async Task<TRsp> PostAsync<TRsp>(Uri uri, Func<HttpContent> contentProvider, JsonTypeInfo? type, CancellationToken ct)
         => await CallJsonAsync<TRsp>(HttpMethod.Post, uri, contentProvider, type, ct);
 
-    protected virtual async Task<TRsp> PostJsonAsync<TReq, TRsp>(Uri uri, TReq content, JsonTypeInfo<TRsp>? type, CancellationToken ct)
+    protected virtual async Task<TRsp> PostJsonAsync<TRsp>(Uri uri, object content, JsonTypeInfo? type, CancellationToken ct)
     {
-        return await CallJsonAsync<TRsp>(HttpMethod.Post, uri, () => JsonContent.Create(content), type, ct);
+        return await CallJsonAsync<TRsp>(HttpMethod.Post, uri, () => JsonContent.Create(content, content.GetType()), type, ct);
     }
 
     protected virtual async Task<bool> IsAvailableAsync(Uri uri, CancellationToken ct)
@@ -92,19 +92,19 @@ public abstract class BaseApiClient : IDisposable
         }
     }
 
-    protected virtual async Task<TRsp> CallJsonAsync<TRsp>(HttpMethod method, Uri uri, Func<HttpContent>? contentProvider, JsonTypeInfo<TRsp>? type, CancellationToken ct)
+    protected virtual async Task<TRsp> CallJsonAsync<TRsp>(HttpMethod method, Uri uri, Func<HttpContent>? contentProvider, JsonTypeInfo? type, CancellationToken ct)
     {
         using var rsp = await CallAsync(method, uri, contentProvider, ct);
         using var stream = rsp.Content.ReadAsStream(ct);
         if (type == null)
             return (await JsonSerializer.DeserializeAsync<TRsp>(stream, cancellationToken: ct))!;
         else
-            return (await JsonSerializer.DeserializeAsync<TRsp>(stream, type, cancellationToken: ct))!;
+            return (await JsonSerializer.DeserializeAsync<TRsp>(stream, (JsonTypeInfo<TRsp>)type, cancellationToken: ct))!;
     }
 
     protected virtual async Task<HttpResponseMessage> CallAsync(HttpMethod method, Uri uri, Func<HttpContent>? contentProvider, CancellationToken ct)
     {
-        var uriList = MirrorManager.GetUrls(uri).ToArray();
+        var uriList = MirrorManager.GetUrls(_cli.BaseAddress == null ? uri : new Uri(_cli.BaseAddress, uri)).ToArray();
         for (var i = 1; ; ++i)
         {
             try

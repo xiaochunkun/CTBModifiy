@@ -44,7 +44,7 @@ public class DefaultCommand : AsyncCommand
 
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
-            if(NativeUtils.IsRunningByDoubleClick.Value)
+            if (NativeUtils.IsRunningByDoubleClick.Value)
                 throw new Exception("当前操作系统不支持双击启动本程序，请升级至 win10 1607 或更高版本，或通过命令行启动");
             else
                 throw new Exception("当前终端不支持无参启动，请指定具体的命令行参数，或升级操作系统至 win10 1607 或更高版本");
@@ -72,7 +72,7 @@ public class DefaultCommand : AsyncCommand
         var keyword = AnsiConsole.Ask<string>(Focused.Text(Environment.NewLine + "输入关键词:")).Trim();
         var result = await _ftb.SearchAsync(keyword, ct);
 
-        if(result.Count == 0)
+        if (result.Count == 0)
         {
             Error.WriteLine("搜索结果为空");
             return 1;
@@ -103,18 +103,18 @@ public class DefaultCommand : AsyncCommand
     async Task<int> selectVersions(int packId, CancellationToken ct)
     {
         var info = await _ftb.GetModpackInfoAsync(packId, ct);
-        Success.WriteLine("整合包：" + info.name);
+        Success.WriteLine($"整合包：{info.name}（{info.id}）");
 
         var versions = info.versions.OrderByDescending(v => v.id).ToArray();
         var index = prompt("选择整合包版本:", versions.Select(v => v.type.ToLower() switch
-            {
-                "release" => $"{v.name} 正式版 （{v.id}）",
-                "beta" => Shallow.Text($"{v.name} 测试版 （{v.id}）"),
-                "alpha" or "archived" => Low.Text($"{v.name} BUG版 （{v.id}）"),
-                _ => $"{v.name} {v.type.ToLower()} （{v.id}）",
-            }).ToArray());
+        {
+            "release" => $"{v.name} 正式版 （{v.id}）",
+            "beta" => Shallow.Text($"{v.name} 测试版 （{v.id}）"),
+            "alpha" or "archived" => Low.Text($"{v.name} BUG版 （{v.id}）"),
+            _ => $"{v.name} {v.type.ToLower()} （{v.id}）",
+        }).ToArray());
 
-        Success.WriteLine("版本：" + versions[index].name);
+        Success.WriteLine($"版本：{versions[index].name}（{versions[index].id}）");
         return await download(info, versions[index], ct);
     }
 
@@ -122,7 +122,7 @@ public class DefaultCommand : AsyncCommand
     {
         var server = prompt("选择整合包类型:", "客户端 - 用来玩", "服务端 - 用来开服") == 1;
         var full = server || prompt("选择下载类型:", "标准包 - 下载快，体积小", "完整包 - 安装快") == 1;
-        var preinstall = server && prompt($"是否预安装服务端，并且同意MC用户协议：https://aka.ms/MinecraftEULA", 
+        var preinstall = server && prompt($"是否预安装服务端，并且同意MC用户协议：https://aka.ms/MinecraftEULA",
             "是，并且同意该协议",
             "否，稍后手动安装") == 0;
         var output = Environment.CurrentDirectory;
@@ -134,13 +134,13 @@ public class DefaultCommand : AsyncCommand
 
         Success.WriteLine($"保存位置: {output}");
         Focused.WriteLine("");
-        
+
         AnsiConsole.Live(Focused.Markup("按任意键开始下载...")).AutoClear(true).Start(ctx =>
         {
             ctx.Refresh();
             Console.ReadKey();
         });
-        
+
         Focused.WriteLine("");
 
         var pack = await _ftb.GetModpackAsync(info, version.id, ct);

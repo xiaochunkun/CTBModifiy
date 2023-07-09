@@ -1,5 +1,6 @@
 ﻿using CurseTheBeast.Api.FTB.Model;
 using CurseTheBeast.Storage;
+using CurseTheBeast.Utils;
 
 namespace CurseTheBeast.Services.Model;
 
@@ -19,7 +20,7 @@ public class FTBFileEntry : FileEntry
         WithArchiveEntryName(file.path, file.name);
 
         var url = !string.IsNullOrWhiteSpace(file.url) ? file.url
-           : $"https://edge.forgecdn.net/files/{file.curseforge!.file / 1000}/{file.curseforge!.file % 1000}/{Uri.EscapeDataString(file.name)}";
+           : CurseforgeUtils.GetDownloadUrl(file.curseforge!.file,file.name);
         SetDownloadable(file.name, url);
         // 有些mod删库跑路，跳过下载交给用户处理
         SetUnrequired();

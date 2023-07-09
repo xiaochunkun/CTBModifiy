@@ -9,8 +9,8 @@ namespace CurseTheBeast.Services;
 public class HttpConfigService
 {
     public static IWebProxy? Proxy { get; private set; }
-    public static string UserAgent { get; set; } = $"{AppInfo.Name}/{AppInfo.Version}";
-    public static int Thread { get; set; } = 8;
+    public static string UserAgent { get; private set; } = $"{AppInfo.Name}/{AppInfo.Version}";
+    public static int Thread { get; private set; } = 8;
 
     public static void SetupHttp(DownloadOptions options)
     {
@@ -21,7 +21,7 @@ public class HttpConfigService
 
     public static void SetupHttp(HttpOptions options)
     {
-        if(options.UserAgent != null)
+        if (options.UserAgent != null)
             UserAgent = options.UserAgent;
         SetupHttpProxy(options.NoProxy, options.Proxy);
     }

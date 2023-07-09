@@ -75,7 +75,7 @@ public class FTBService : IDisposable
                     await Task.Delay(TimeSpan.FromMilliseconds(50), ct);
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
 
             }
@@ -124,7 +124,7 @@ public class FTBService : IDisposable
                 {
                     if (e is not OperationCanceledException && e.InnerException is not OperationCanceledException)
                         throw;
-                    if(!ct.IsCancellationRequested)
+                    if (!ct.IsCancellationRequested)
                         throw;
                 }
                 finally
@@ -142,7 +142,7 @@ public class FTBService : IDisposable
                     {
                         cts.Cancel();
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
 
                     }
@@ -158,7 +158,7 @@ public class FTBService : IDisposable
         return Focused.StatusAsync("搜索中", async ctx =>
             {
                 var result = await _ftb.SearchAsync(keyword, ct);
-                return result.packs?.Select(p => (p.id, p.name)).ToArray() ?? Array.Empty<(int, string)>() as IReadOnlyList<(int, string)> ;
+            return result.packs?.Select(p => (p.id, p.name)).ToArray() ?? Array.Empty<(int, string)>() as IReadOnlyList<(int, string)>;
             });
     }
 
@@ -199,6 +199,7 @@ public class FTBService : IDisposable
             Icon = iconFile == null ? null : new FileEntry(RepoType.Icon, iconFile.id.ToString())
                 .WithArchiveEntryName("icon.png")
                 .WithSize(iconFile.size)
+                .SetUnrequired()
                 .SetDownloadable("icon.png", iconFile.url),
             Version = new()
             {
