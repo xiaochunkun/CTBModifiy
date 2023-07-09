@@ -36,7 +36,7 @@ public class DownloadCommand : AsyncCommand<DownloadCommand.Options>
         if(options.VersionId == 0)
         {
             var info = await ftb.GetModpackInfoAsync(options.PackId);
-            options.VersionId = info.versions.OrderByDescending(v => v.updated).First().id;
+            options.VersionId = info.versions.OrderByDescending(v => v.id).First().id;
             Success.WriteLine($"√ Latest version id {options.VersionId} selected");
 
             pack = await ftb.GetModpackAsync(info, options.VersionId);
