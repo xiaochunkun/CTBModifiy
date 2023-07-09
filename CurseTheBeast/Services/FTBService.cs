@@ -10,7 +10,7 @@ namespace CurseTheBeast.Services;
 
 public class FTBService : IDisposable
 {
-    static readonly IReadOnlySet<int> BlackList = new HashSet<int>() 
+    static readonly IReadOnlySet<int> BlackList = new HashSet<int>()
     {
         104,
         81
@@ -26,33 +26,33 @@ public class FTBService : IDisposable
     public Task<IReadOnlyList<(int Id, string Name)>> GetFeaturedModpacksAsync(CancellationToken ct = default)
     {
         return Focused.StatusAsync("获取热门整合包", async ctx =>
+        {
+            var result = new List<(int, string)>();
+            var featuredPackIds = (await _ftb.GetFeaturedAsync(ct)).packs.ToHashSet();
+            var total = featuredPackIds.Count;
+            await LocalStorage.Persistent.GetOrUpdateObject("list", async cache =>
             {
-                var result = new List<(int, string)>();
-                var featuredPackIds = (await _ftb.GetFeaturedAsync(ct)).packs.ToHashSet();
-                var total = featuredPackIds.Count;
-                await LocalStorage.Persistent.GetOrUpdateObject("list", async cache =>
+                cache ??= new();
+                foreach (var (id, item) in cache.Items)
                 {
-                    cache ??= new();
-                    foreach (var (id, item) in cache.Items)
-                    {
-                        if (featuredPackIds.Remove(id))
-                            result.Add((id, item.Name));
-                    }
+                    if (featuredPackIds.Remove(id))
+                        result.Add((id, item.Name));
+                }
 
-                    if (featuredPackIds.Count > 0)
+                if (featuredPackIds.Count > 0)
+                {
+                    foreach (var id in featuredPackIds)
                     {
-                        foreach (var id in featuredPackIds)
-                        {
-                            ctx.Status = Focused.Text($"获取热门整合包 {result.Count}/{total}");
-                            var pack = await _ftb.GetInfoAsync(id, ct);
-                            cache.Items[pack.id] = new() { Name = pack.name };
-                            result.Add((pack.id, pack.name));
-                        }
+                        ctx.Status = Focused.Text($"获取热门整合包 {result.Count}/{total}");
+                        var pack = await _ftb.GetInfoAsync(id, ct);
+                        cache.Items[pack.id] = new() { Name = pack.name };
+                        result.Add((pack.id, pack.name));
                     }
-                    return cache;
-                }, ModpackCache.ModpackCacheContext.Default.ModpackCache, ct);
-                return (IReadOnlyList<(int Id, string Name)>)result;
-            });
+                }
+                return cache;
+            }, ModpackCache.ModpackCacheContext.Default.ModpackCache, ct);
+            return (IReadOnlyList<(int Id, string Name)>)result;
+        });
     }
 
     public async Task<IReadOnlyList<(int Id, string Name)>> ListAsync(bool autoClear, CancellationToken ct)
@@ -156,18 +156,18 @@ public class FTBService : IDisposable
     public Task<IReadOnlyList<(int Id, string Name)>> SearchAsync(string keyword, CancellationToken ct = default)
     {
         return Focused.StatusAsync("搜索中", async ctx =>
-            {
-                var result = await _ftb.SearchAsync(keyword, ct);
+        {
+            var result = await _ftb.SearchAsync(keyword, ct);
             return result.packs?.Select(p => (p.id, p.name)).ToArray() ?? Array.Empty<(int, string)>() as IReadOnlyList<(int, string)>;
-            });
+        });
     }
 
     public Task<ModpackInfo> GetModpackInfoAsync(int modpackId, CancellationToken ct = default)
     {
         return Focused.StatusAsync("获取整合包信息", async ctx =>
-            {
-                return await _ftb.GetInfoAsync(modpackId, ct);
-            });
+        {
+            return await _ftb.GetInfoAsync(modpackId, ct);
+        });
     }
 
     public async Task<FTBModpack> GetModpackAsync(int modpackId, int versionId, CancellationToken ct = default)
@@ -219,9 +219,9 @@ public class FTBService : IDisposable
             Files = new()
             {
                 ServerFiles = files.Where(f => f.Side.HasFlag(FileSide.Server)).ToArray(),
-                ClientFilesWithoutCurseforge = files.Where(f => f.Curseforge == null).Where(f => f.Side.HasFlag(FileSide.Client)).ToArray(),
+                ClientFilesWithoutCurseforgeMods = files.Where(f => f.Side.HasFlag(FileSide.Client)).Where(f => f.Curseforge == null || !f.ArchiveEntryName!.StartsWith("mods/", StringComparison.OrdinalIgnoreCase)).ToArray(),
                 ClientFullFiles = files.Where(f => f.Side.HasFlag(FileSide.Client)).ToArray(),
-                ClientCurseforgeFiles = files.Where(f => f.Curseforge != null).Where(f => f.Side.HasFlag(FileSide.Client)).ToArray(),
+                ClientCurseforgeMods = files.Where(f => f.Side.HasFlag(FileSide.Client)).Where(f => f.Curseforge != null && f.ArchiveEntryName!.StartsWith("mods/", StringComparison.OrdinalIgnoreCase)).ToArray(),
             }
         };
     }
@@ -234,7 +234,7 @@ public class FTBService : IDisposable
         else if (full)
             files.AddRange(pack.Files.ClientFullFiles);
         else
-            files.AddRange(pack.Files.ClientFilesWithoutCurseforge);
+            files.AddRange(pack.Files.ClientFilesWithoutCurseforgeMods);
 
         if (pack.Icon != null)
             files.Add(pack.Icon);

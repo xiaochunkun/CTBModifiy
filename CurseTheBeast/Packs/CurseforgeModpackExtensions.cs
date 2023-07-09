@@ -43,7 +43,7 @@ public static class CurseforgeModpackExtensions
             Name = pack.Name,
             Version = pack.Version.Name,
             Author = string.Join("; ", pack.Authors),
-            Files = (full ? Array.Empty<FTBFileEntry>() : pack.Files.ClientCurseforgeFiles).Select(f => new JsonObject()
+            Files = (full ? Array.Empty<FTBFileEntry>() : pack.Files.ClientCurseforgeMods).Select(f => new JsonObject()
             {
                 ["projectID"] = f.Curseforge!.ProjectId,
                 ["fileID"] = f.Curseforge!.FileId,
@@ -71,7 +71,7 @@ public static class CurseforgeModpackExtensions
 
     static async Task writeAssetsAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
     {
-        foreach (var file in (full ? pack.Files.ClientFullFiles : pack.Files.ClientFilesWithoutCurseforge))
+        foreach (var file in (full ? pack.Files.ClientFullFiles : pack.Files.ClientFilesWithoutCurseforgeMods))
         {
             if(!file.Unreachable)
                 await archive.WriteFileAsync("overrides", file, ct);
@@ -82,7 +82,7 @@ public static class CurseforgeModpackExtensions
     {
         var sb = new StringBuilder();
         sb.AppendLine("<ul>");
-        foreach (var file in pack.Files.ClientCurseforgeFiles)
+        foreach (var file in pack.Files.ClientCurseforgeMods)
             sb.AppendLine($"<li><a href=\"https://www.curseforge.com/projects/{file.Curseforge!.ProjectId}\">{HtmlEncoder.Default.Encode(file.DisplayName!)}</a></li>");
         sb.AppendLine("</ul>");
 
