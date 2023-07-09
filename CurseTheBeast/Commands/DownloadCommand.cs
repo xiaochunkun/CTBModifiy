@@ -34,6 +34,7 @@ public class DownloadCommand : AsyncCommand<DownloadCommand.Options>
         {
             var info = await ftb.GetModpackInfoAsync(options.PackId);
             options.VersionId = info.versions.OrderByDescending(v => v.updated).First().id;
+            Success.WriteLine($"√ Latest version id {options.VersionId} selected");
         }
         var pack = await ftb.GetModpackAsync(options.PackId, options.VersionId);
         var packType = (options.Server, options.FullPack, options.PreInstall) switch 
