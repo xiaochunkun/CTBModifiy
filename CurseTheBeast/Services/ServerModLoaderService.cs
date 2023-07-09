@@ -158,7 +158,9 @@ public class ServerModLoaderService : IDisposable
             ZuluPackage? pkg = null;
             foreach (var pair in versionPairs)
             {
-                pkg = (await api.GetZuluPackageAsync(pair.Version, os, arch, archiveType, pair.PkgType, ct)).FirstOrDefault();
+                pkg = (await api.GetZuluPackageAsync(pair.Version, os, arch, archiveType, pair.PkgType, ct))
+                    .Where(p => !p.name.ToLower().Contains("musl"))
+                    .FirstOrDefault();
                 if (pkg != null)
                     break;
             }
