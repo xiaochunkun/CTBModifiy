@@ -1,5 +1,6 @@
 ﻿using CurseTheBeast.Commands.Options;
 using CurseTheBeast.Services;
+using CurseTheBeast.Services.Model;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 
@@ -30,13 +31,21 @@ public class DownloadCommand : AsyncCommand<DownloadCommand.Options>
         HttpConfigService.SetupHttp(options);
 
         using var ftb = new FTBService();
+
+        FTBModpack pack;
         if(options.VersionId == 0)
         {
             var info = await ftb.GetModpackInfoAsync(options.PackId);
             options.VersionId = info.versions.OrderByDescending(v => v.updated).First().id;
             Success.WriteLine($"√ Latest version id {options.VersionId} selected");
+
+            pack = await ftb.GetModpackAsync(info, options.VersionId);
         }
-        var pack = await ftb.GetModpackAsync(options.PackId, options.VersionId);
+        else
+        {
+            pack = await ftb.GetModpackAsync(options.PackId, options.VersionId);
+        }
+
         var packType = (options.Server, options.FullPack, options.PreInstall) switch 
         {
             (true, _, true) => "Server Preinstalled",
