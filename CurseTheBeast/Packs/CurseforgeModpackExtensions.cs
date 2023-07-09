@@ -116,7 +116,7 @@ public static class CurseforgeModpackExtensions
 
     static async Task writeIconAsync(this ZipArchive archive, FTBModpack pack, CancellationToken ct)
     {
-        if (pack.Icon == null)
+        if (pack.Icon == null || pack.Icon.Unreachable)
             return;
 
         await archive.WriteFileAsync("overrides", pack.Icon, ct);

@@ -100,7 +100,7 @@ public class ServerModpack
 
     async Task writeIconAsync(ZipArchive archive, CancellationToken ct)
     {
-        if (_pack.Icon == null)
+        if (_pack.Icon == null || _pack.Icon.Unreachable)
             return;
 
         await archive.WriteFileAsync(null, _pack.Icon, ct);
