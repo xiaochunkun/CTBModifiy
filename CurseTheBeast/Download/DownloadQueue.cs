@@ -68,7 +68,7 @@ public class DownloadQueue : IDisposable
             await downloadFile(file, buffer, ct);
 
             if (!file.Unreachable && !file.ValidateTempAndApply())
-                throw new InvalidDataException($"文件校验失败: {file.Url}");
+                throw new Exception($"文件校验失败: {file.Url}");
             TaskFinished?.Invoke(file);
         }
     }
