@@ -124,26 +124,37 @@ public class FileEntry
         }
     }
 
-    public bool Validate(bool deleteOnFailed = true)
+    public bool Validate(bool deleteIfUnsure = true)
     {
-        return _validated || validateInternal(LocalPath, true, deleteOnFailed);
+        return _validated || validateInternal(LocalPath, true, deleteIfUnsure);
     }
 
     public void Delete()
     {
-        if (File.Exists(LocalPath))
-            File.Delete(LocalPath);
-        if (File.Exists(_sha1FilePath))
-            File.Delete(_sha1FilePath);
+        delete(LocalPath);
+        delete(_sha1FilePath);
     }
 
     public void DeleteTemp()
     {
-        if (File.Exists(LocalTempPath))
-            File.Delete(LocalTempPath);
+        delete(LocalTempPath);
+        delete(_sha1FilePath);
     }
 
-    bool validateInternal(string filePath, bool strict, bool deleteOnFailed)
+    void delete(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+    bool validateInternal(string filePath, bool strict, bool deleteIfUnsure)
     {
         var file = new FileInfo(filePath);
         var sha1File = new FileInfo(_sha1FilePath);
@@ -154,8 +165,8 @@ public class FileEntry
         // 已提供文件大小且不匹配
         if (Size != null && file.Length != Size)
         {
-            if(deleteOnFailed)
-                file.Delete();
+            delete(filePath);
+            delete(_sha1FilePath);
             return false;
         }
 
@@ -171,8 +182,11 @@ public class FileEntry
         }
         else if(strict)
         {
-            if (deleteOnFailed)
-                file.Delete();
+            if (deleteIfUnsure)
+            {
+                delete(filePath);
+                delete(_sha1FilePath);
+            }
             return false;
         }
 
@@ -181,9 +195,8 @@ public class FileEntry
         // 有哈希且不匹配
         if (providedSha1 != null && !computedSha1.SequenceEqual(providedSha1))
         {
-            file.Delete();
-            if (sha1File.Exists)
-                sha1File.Delete();
+            delete(filePath);
+            delete(_sha1FilePath);
             return false;
         }
 
