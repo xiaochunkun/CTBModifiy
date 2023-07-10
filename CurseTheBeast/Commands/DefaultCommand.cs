@@ -9,17 +9,14 @@ namespace CurseTheBeast.Commands;
 
 public class DefaultCommand : AsyncCommand
 {
-    readonly FTBService _ftb;
-
-    public DefaultCommand()
-    {
-        HttpConfigService.SetupHttpProxy(false, null);
-        _ftb = new FTBService();
-    }
+    FTBService _ftb = null!;
 
     public override async Task<int> ExecuteAsync(CommandContext context)
     {
-        throwIfNotSupported();
+        DirectoryUtils.SetupOutputDirectory(Environment.CurrentDirectory, true);
+        EnvironmentUtils.CheckTerminal();
+        HttpConfigService.SetupHttpProxy(false, null);
+        _ftb = new FTBService();
 
         var op = prompt("按上下键选择，回车确认:",
             "查看热门整合包",
@@ -37,23 +34,6 @@ public class DefaultCommand : AsyncCommand
         };
     }
 
-    void throwIfNotSupported()
-    {
-        if (AnsiConsole.Profile.Capabilities.Ansi && AnsiConsole.Profile.Capabilities.Interactive)
-            return;
-
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-        {
-            if (NativeUtils.IsRunningByDoubleClick.Value)
-                throw new Exception("当前操作系统不支持双击启动本程序，请升级至 win10 1607 或更高版本，或通过命令行启动");
-            else
-                throw new Exception("当前终端不支持无参启动，请指定具体的命令行参数，或升级操作系统至 win10 1607 或更高版本");
-        }
-        else
-        {
-            throw new Exception("当前终端不支持无参启动，请指定具体的命令行参数，或换用其它终端");
-        }
-    }
 
     async Task<int> selectFeaturedModpack(CancellationToken ct = default)
     {

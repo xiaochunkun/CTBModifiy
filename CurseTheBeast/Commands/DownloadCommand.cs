@@ -1,6 +1,7 @@
 ﻿using CurseTheBeast.Commands.Options;
 using CurseTheBeast.Services;
 using CurseTheBeast.Services.Model;
+using CurseTheBeast.Utils;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 
@@ -28,6 +29,7 @@ public class DownloadCommand : AsyncCommand<DownloadCommand.Options>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Options options)
     {
+        DirectoryUtils.SetupOutputDirectory(options.Output, false);
         HttpConfigService.SetupHttp(options);
 
         using var ftb = new FTBService();
