@@ -133,6 +133,8 @@ public class FileEntry
     {
         if (File.Exists(LocalPath))
             File.Delete(LocalPath);
+        if (File.Exists(_sha1FilePath))
+            File.Delete(_sha1FilePath);
     }
 
     public void DeleteTemp()

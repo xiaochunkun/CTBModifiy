@@ -4,6 +4,7 @@ using CurseTheBeast.Api.Mojang;
 using CurseTheBeast.ServerInstaller;
 using CurseTheBeast.Services.Model;
 using CurseTheBeast.Storage;
+using System.IO.Compression;
 using System.Runtime.InteropServices;
 
 namespace CurseTheBeast.Services;
@@ -142,7 +143,13 @@ public class ServerModLoaderService : IDisposable
             // 兼容旧版索引
             var javaArchiveFile = new FileEntry(RepoType.JreArchive, fileName);
             if (javaArchiveFile.Validate())
-                return javaArchiveFile;
+            {
+                // 检查之前误下载的musl版JRE
+                if (isMuslJre(javaArchiveFile.LocalPath))
+                    javaArchiveFile.Delete();
+                else
+                    return javaArchiveFile;
+            }
 
             var baseVersionPair = (Version: _pack.Runtime.JavaVersion, PkgType: "jre");
             var versionPairs = new[] { baseVersionPair, baseVersionPair with { PkgType = "jdk" } }.AsEnumerable();
@@ -178,6 +185,12 @@ public class ServerModLoaderService : IDisposable
         {
             return JavaRuntime.FromArchive(javaArchiveFile.LocalPath);
         });
+    }
+
+    static bool isMuslJre(string archivePath)
+    {
+        using var archive = ZipFile.OpenRead(archivePath);
+        return archive.Entries.First().FullName.Contains("musl");
     }
 
     public void Dispose()
