@@ -130,7 +130,7 @@ public abstract class BaseApiClient : IDisposable
                     if (e is HttpRequestException hre && hre.StatusCode != null)
                         throw new Exception($"调用接口失败（{(int)hre.StatusCode}）：{uri} ，请重试几次，或打开\u68AF\u5B50再试");
                     else
-                        throw new Exception($"调用接口失败：{uri}，或打开\u68AF\u5B50再试", e);
+                        throw new Exception($"调用接口失败：{uri} ，请重试几次，或打开\u68AF\u5B50再试", e);
                 }
             }
         }
