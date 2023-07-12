@@ -124,12 +124,12 @@ public class DownloadQueue : IDisposable
                         // 400系状态码除429外全部视为unreachable
                         if (hre.StatusCode == HttpStatusCode.TooManyRequests)
                         {
-                            throw new Exception("下载请求太频繁，请开启代理或稍后再试。");
+                            throw new Exception("下载请求太频繁，请稍后重试，或打开\u68AF\u5B50再试。");
                         }
                         else if (((int)hre.StatusCode.Value) / 100 == 4)
                         {
                             if (file.Required)
-                                throw new Exception($"下载失败（${(int)hre.StatusCode}）: {file.Url}", ex);
+                                throw new Exception($"文件下载失败（${(int)hre.StatusCode}）: {file.Url} ，请重试几次，或打开\u68AF\u5B50再试", ex);
                             else
                                 file.SetUnreachable();
                             break;
@@ -140,7 +140,7 @@ public class DownloadQueue : IDisposable
                 cli.Dispose();
                 cli = getHttpClient();
                 if (i >= TryTimes)
-                    throw new Exception($"下载失败: {file.Url}", ex);
+                    throw new Exception($"文件下载失败: {file.Url} ，请重试几次，或打开\u68AF\u5B50再试", ex);
                 else
                     await Task.Delay(TimeSpan.FromSeconds(2), ct);
             }
