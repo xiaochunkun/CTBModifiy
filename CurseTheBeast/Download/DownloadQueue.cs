@@ -75,7 +75,6 @@ public class DownloadQueue : IDisposable
 
     async ValueTask downloadFile(FileEntry file, Memory<byte> buffer, CancellationToken ct)
     {
-
         if (file.Url == null)
             throw new Exception($"文件{file.DisplayName ?? file.LocalPath}无Url，无法下载");
 
