@@ -17,9 +17,9 @@ public static class PackService
             await using var fs = File.Create(output);
             await ftbPack.PackCurseforgeAsync(fs, full, ct);
         });
+        Success.WriteLine($"√ 打包完成：{output}");
         if (ftbPack.Files.ClientFullFiles.Any(f => f.Unreachable))
             Error.WriteLine("警告：部分文件无法下载，请查看“unreachable-files.json”尝试手动下载");
-        Success.WriteLine($"√ 打包完成：{output}");
     }
 
     public static async Task PackServerAsync(FTBPack ftbPack, IReadOnlyCollection<FileEntry> loaderFiles, bool preinstall, string output, CancellationToken ct = default)
@@ -33,8 +33,8 @@ public static class PackService
             var serverPack = new ServerModpack(ftbPack, loaderFiles, preinstall);
             await serverPack.PackServerAsync(fs, ct);
         });
-        if(ftbPack.Files.ServerFiles.Any(f => f.Unreachable))
-            Error.WriteLine("警告：部分文件无法下载，请查看“unreachable-files.json”尝试手动下载");
         Success.WriteLine($"√ 打包完成：{output}");
+        if (ftbPack.Files.ServerFiles.Any(f => f.Unreachable))
+            Error.WriteLine("警告：部分文件无法下载，请查看“unreachable-files.json”尝试手动下载");
     }
 }
