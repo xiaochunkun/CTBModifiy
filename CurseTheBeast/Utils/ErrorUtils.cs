@@ -13,7 +13,6 @@ public static class ErrorUtils
     {
         typeof(OperationCanceledException),
         typeof(TimeoutException),
-        typeof(HttpRequestException),
     };
     static readonly IReadOnlySet<Type> SimpleExceptionTypes = new HashSet<Type>()
     {
