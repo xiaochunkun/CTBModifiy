@@ -12,8 +12,9 @@ public class FTBService : IDisposable
 {
     static readonly IReadOnlySet<int> BlackList = new HashSet<int>()
     {
-        104,
-        81
+        81,     // Minecraft
+        104,    // Minecraft Forge
+        116     // NeoForge
     };
 
     readonly FTBApiClient _ftb;
