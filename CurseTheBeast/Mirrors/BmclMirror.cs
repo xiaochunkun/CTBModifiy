@@ -20,6 +20,7 @@ public class BmclMirror : HostReplacementMirror
             "libraries.minecraft.net",
             "maven.minecraftforge.net",
             "maven.fabricmc.net",
+            "maven.neoforged.net",
         }] = "bmclapi2.bangbang93.com/maven",
         /* 缺的太多
         [new[]

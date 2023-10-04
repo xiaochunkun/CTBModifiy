@@ -91,6 +91,7 @@ public class ServerModLoaderService : IDisposable
         {
             "forge" => new ForgeServerInstaller(),
             "fabric" => new FabricServerInstaller() as AbstractModServerInstaller,
+            "neoforge" => new NeoForgeServerInstaller(),
             _ => null,
         };
         if(installer != null)

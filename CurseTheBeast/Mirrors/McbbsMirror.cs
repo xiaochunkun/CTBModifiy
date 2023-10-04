@@ -20,6 +20,7 @@ public class McbbsMirror : HostReplacementMirror
             "libraries.minecraft.net",
             "maven.minecraftforge.net",
             "maven.fabricmc.net",
+            "maven.neoforged.net",
         }] = "download.mcbbs.net/maven",
         /* 缺的太多
         [new[]
