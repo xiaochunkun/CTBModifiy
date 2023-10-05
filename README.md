@@ -65,8 +65,8 @@ CurseTheBeast
 
 | 名称     | 用途     |
 | :------:  | :------ |
-| [MCBBS](https://www.mcbbs.net/) | MC meta/jar/maven、Forge/Fabric maven |
-| [BMCLAPI](https://bmclapidoc.bangbang93.com/) | MC meta/jar/maven、Forge/Fabric maven |
+| [MCBBS](https://www.mcbbs.net/) | MC meta/jar/maven、Forge/Fabric/NeoForge maven |
+| [BMCLAPI](https://bmclapidoc.bangbang93.com/) | MC meta/jar/maven、Forge/Fabric/NeoForge maven |
 | [LSS233](https://www.mcbbs.net/forum.php?mod=viewthread&tid=800729) | MC/Forge/Fabric maven |
 
 ## 缓存
