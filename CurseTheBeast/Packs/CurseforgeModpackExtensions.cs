@@ -23,12 +23,12 @@ public static class CurseforgeModpackExtensions
 
     static async Task writeManifestAsync(this ZipArchive archive, FTBModpack pack, bool full, CancellationToken ct)
     {
-        var manifest = new
+        var manifest = new JsonObject
         {
-            Minecraft = new
+            ["minecraft"] = new JsonObject
             {
-                Version = pack.Runtime.GameVersion,
-                ModLoaders = new[]
+                ["version"] = pack.Runtime.GameVersion,
+                ["modLoaders"] = new JsonArray()
                 {
                     // NativeAot下匿名类型数组的Json序列化有BUG，必须手动构造json对象
                     new JsonObject()
@@ -38,23 +38,23 @@ public static class CurseforgeModpackExtensions
                     }
                 }
             },
-            ManifestType = "minecraftModpack",
-            ManifestVersion = 1,
-            Name = pack.Name,
-            Version = pack.Version.Name,
-            Author = string.Join("; ", pack.Authors),
-            Files = (full ? Array.Empty<FTBFileEntry>() : pack.Files.ClientCurseforgeMods).Select(f => new JsonObject()
+            ["manifestType"] = "minecraftModpack",
+            ["manifestVersion"] = 1,
+            ["name"] = pack.Name,
+            ["version"] = pack.Version.Name,
+            ["author"] = string.Join("; ", pack.Authors),
+            ["files"] = new JsonArray((full ? Array.Empty<FTBFileEntry>() : pack.Files.ClientCurseforgeMods).Select(f => new JsonObject()
             {
                 ["projectID"] = f.Curseforge!.ProjectId,
                 ["fileID"] = f.Curseforge!.FileId,
                 ["required"] = true,
-            }).ToArray(),
-            overrides = "overrides",
+            }).ToArray()),
+            ["overrides"] = "overrides",
         };
 
         await archive.WriteJsonFileAsync("manifest.json", manifest, ct);
 
-        var unreachableFiles = pack.Files.ClientFullFiles.Where(f => f.Unreachable).Select(f => new JsonObject()
+        var unreachableFiles = new JsonArray(pack.Files.ClientFullFiles.Where(f => f.Unreachable).Select(f => new JsonObject()
         {
             ["path"] = f.ArchiveEntryName,
             ["url"] = f.Url,
@@ -64,8 +64,8 @@ public static class CurseforgeModpackExtensions
                 ["fileId"] = f.Curseforge.FileId,
                 ["page"] = $"https://www.curseforge.com/projects/{f.Curseforge.ProjectId}",
             },
-        }).ToArray();
-        if (unreachableFiles.Length > 0)
+        }).ToArray());
+        if (unreachableFiles.Count > 0)
             await archive.WriteJsonFileAsync("overrides/unreachable-files.json", unreachableFiles, ct);
     }
 

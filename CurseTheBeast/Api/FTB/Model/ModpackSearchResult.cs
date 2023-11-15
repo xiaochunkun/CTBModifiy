@@ -1,7 +1,9 @@
-﻿namespace CurseTheBeast.Api.FTB.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace CurseTheBeast.Api.FTB.Model;
 
 
-public class ModpackSearchResult : FTBRsp
+public partial class ModpackSearchResult : FTBRsp
 {
     public Pack[] packs { get; init; } = null!;
     public int total { get; init; }
@@ -19,7 +21,8 @@ public class ModpackSearchResult : FTBRsp
         public string synopsis { get; init; } = null!;
         public int id { get; init; }
         public int updated { get; init; }
-        public bool @private { get; init; }
+        [JsonPropertyName("private")]
+        public bool private_ { get; init; }
 
 
         public class Art
@@ -49,5 +52,11 @@ public class ModpackSearchResult : FTBRsp
             public int id { get; init; }
             public string name { get; init; } = null!;
         }
+    }
+
+    [JsonSerializable(typeof(ModpackSearchResult))]
+    public partial class ModpackSearchResultContext : JsonSerializerContext
+    {
+
     }
 }

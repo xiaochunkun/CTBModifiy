@@ -1,7 +1,9 @@
-﻿namespace CurseTheBeast.Api.Mojang.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace CurseTheBeast.Api.Mojang.Model;
 
 
-public class GameVersions
+public partial class GameVersions
 {
     public Version[] versions { get; init; } = null!;
 
@@ -9,5 +11,11 @@ public class GameVersions
     {
         public string id { get; init; } = null!;
         public string url { get; init; } = null!;
+    }
+
+    [JsonSerializable(typeof(GameVersions))]
+    public partial class GameVersionsContext : JsonSerializerContext
+    {
+
     }
 }

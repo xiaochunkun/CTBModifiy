@@ -1,12 +1,13 @@
 ﻿using CurseTheBeast.Storage;
 using System.IO.Compression;
-using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 
 namespace CurseTheBeast.Utils;
 
 
-public static class ZipExtensions
+public static partial class ZipExtensions
 {
     const int UnixExecutableAttr = -2115174400;
 
@@ -43,16 +44,19 @@ public static class ZipExtensions
         return entry;
     }
 
-    public static async Task<ZipArchiveEntry> WriteJsonFileAsync<T>(this ZipArchive archive, string entryName, T model, CancellationToken ct)
+    public static async Task<ZipArchiveEntry> WriteJsonFileAsync(this ZipArchive archive, string entryName, JsonNode obj, CancellationToken ct)
     {
         var entry = archive.CreateEntry(entryName, getCompressionLevel(entryName));
         await using var entryStream = entry.Open();
-        await JsonSerializer.SerializeAsync(entryStream, model, new JsonSerializerOptions()
-        {
-            WriteIndented = true,
-            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        }, ct);
+        await JsonSerializer.SerializeAsync(entryStream, obj, JsonNodeContext.Default.JsonNode, ct);
+        return entry;
+    }
+
+    public static async Task<ZipArchiveEntry> WriteJsonFileAsync<T>(this ZipArchive archive, string entryName, T model, JsonTypeInfo<T> typeInfo, CancellationToken ct)
+    {
+        var entry = archive.CreateEntry(entryName, getCompressionLevel(entryName));
+        await using var entryStream = entry.Open();
+        await JsonSerializer.SerializeAsync(entryStream, model, typeInfo, ct);
         return entry;
     }
 

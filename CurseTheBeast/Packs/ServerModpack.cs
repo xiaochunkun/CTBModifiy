@@ -37,19 +37,19 @@ public class ServerModpack
     async Task writeManifestAsync(ZipArchive archive, CancellationToken ct)
     {
         // 瞎编的清单
-        await archive.WriteJsonFileAsync("server-manifest.json", new
+        await archive.WriteJsonFileAsync("server-manifest.json", new JsonObject
         {
-            _pack.Name,
-            Version = _pack.Version.Name,
-            _pack.Runtime.GameVersion,
-            _pack.Runtime.ModLoaderType,
-            _pack.Runtime.ModLoaderVersion,
-            _pack.Runtime.JavaVersion,
-            _pack.Runtime.RecommendedRam,
-            _pack.Runtime.MinimumRam,
+            ["name"] = _pack.Name,
+            ["version"] = _pack.Version.Name,
+            ["gameVersion"] = _pack.Runtime.GameVersion,
+            ["modLoaderType"] = _pack.Runtime.ModLoaderType,
+            ["modLoaderVersion"] = _pack.Runtime.ModLoaderVersion,
+            ["javaVersion"] = _pack.Runtime.JavaVersion,
+            ["recommendedRam"] = _pack.Runtime.RecommendedRam,
+            ["minimumRam"] = _pack.Runtime.MinimumRam,
         }, ct);
 
-        var unreachableFiles = _pack.Files.ServerFiles.Where(f => f.Unreachable).Select(f => new JsonObject()
+        var unreachableFiles = new JsonArray(_pack.Files.ServerFiles.Where(f => f.Unreachable).Select(f => new JsonObject()
         {
             ["path"] = f.ArchiveEntryName,
             ["url"] = f.Url,
@@ -59,8 +59,8 @@ public class ServerModpack
                 ["fileId"] = f.Curseforge.FileId,
                 ["page"] = $"https://www.curseforge.com/projects/{f.Curseforge.ProjectId}",
             },
-        }).ToArray();
-        if (unreachableFiles.Length > 0)
+        }).ToArray());
+        if (unreachableFiles.Count > 0)
             await archive.WriteJsonFileAsync($"unreachable-files.json", unreachableFiles, ct);
     }
 

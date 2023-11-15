@@ -183,7 +183,7 @@ public class FTBService : IDisposable
         var manifest = await LocalStorage.Persistent.GetOrSaveObject($"manifest-{info.id}-{versionId}",
             async () => await Focused.StatusAsync("获取整合包文件清单",
                 async ctx => await _ftb.GetManifestAsync(info.id, versionId, ct)),
-            null, ct);
+            ModpackManifest.ModpackManifestContext.Default.ModpackManifest, ct);
 
         var files = manifest.files.Select(f => new FTBFileEntry(f)).ToArray();
         var iconFile = info.art.FirstOrDefault(a => a.type == "square");
