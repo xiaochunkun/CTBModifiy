@@ -22,7 +22,7 @@ public class FTBApiClient : BaseApiClient
     }
 
     public Task<ModpackSearchResult> SearchAsync(string keyword, CancellationToken ct = default)
-        => GetAsync<ModpackSearchResult>(new Uri($"https://api.modpacks.ch/public/modpack/search/20/detailed?platform=modpacksch&term={Uri.EscapeDataString(keyword)}"), null, ct);
+        => GetAsync<ModpackSearchResult>(new Uri($"https://api.modpacks.ch/public/modpack/search/20/detailed?platform=modpacksch&term={Uri.EscapeDataString(keyword)}"), ModpackSearchResult.ModpackSearchResultContext.Default.ModpackSearchResult, ct);
 
     public Task<ModpackList> GetListAsync(CancellationToken ct = default)
         => GetAsync<ModpackList>(new Uri($"https://api.modpacks.ch/public/modpack/all"), ModpackList.ModpackListContext.Default.ModpackList, ct);
@@ -31,8 +31,8 @@ public class FTBApiClient : BaseApiClient
         => GetAsync<ModpackList>(new Uri($"https://api.modpacks.ch/public/modpack/featured/20"), ModpackList.ModpackListContext.Default.ModpackList, ct);
 
     public Task<ModpackInfo> GetInfoAsync(int modpackId, CancellationToken ct = default)
-        => GetAsync<ModpackInfo>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}"), null, ct);
+        => GetAsync<ModpackInfo>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}"), ModpackInfo.ModpackInfoContext.Default.ModpackInfo, ct);
 
     public Task<ModpackManifest> GetManifestAsync(int modpackId, int versionId, CancellationToken ct = default)
-        => GetAsync<ModpackManifest>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}/{versionId}"), null, ct);
+        => GetAsync<ModpackManifest>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}/{versionId}"), ModpackManifest.ModpackManifestContext.Default.ModpackManifest, ct);
 }

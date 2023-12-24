@@ -13,7 +13,7 @@ public static class AppInfo
     {
         var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
         Name = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ?? "CurseTheBeast";
-        Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "0.0";
+        Version = assembly.GetName().Version?.ToString(3) ?? "0.0";
         Author = assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company ?? "TomatoPuddin";
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace CurseTheBeast.Api.Fabric.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace CurseTheBeast.Api.Fabric.Model;
 
 
-public class ServerManifest
+public partial class ServerManifest
 {
     public string mainClass { get; init; } = null!;
     public Library[] libraries { get; init; } = null!;
@@ -11,5 +13,11 @@ public class ServerManifest
     {
         public string name { get; init; } = null!;
         public string url { get; init; } = null!;
+    }
+
+    [JsonSerializable(typeof(ServerManifest))]
+    public partial class ServerManifestContext : JsonSerializerContext
+    {
+
     }
 }

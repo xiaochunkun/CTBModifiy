@@ -1,7 +1,9 @@
-﻿namespace CurseTheBeast.Api.FTB.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace CurseTheBeast.Api.FTB.Model;
 
 
-public class ModpackManifest : FTBRsp
+public partial class ModpackManifest : FTBRsp
 {
     public File[] files { get; init; } = null!;
     public Specs specs { get; init; } = null!;
@@ -25,7 +27,8 @@ public class ModpackManifest : FTBRsp
     public string name { get; init; } = null!;
     // public string type { get; init; } = null!;
     public long updated { get; init; }
-    public bool @private { get; init; }
+    [JsonPropertyName("private")]
+    public bool private_ { get; init; }
 
 
     public class File
@@ -98,5 +101,11 @@ public class ModpackManifest : FTBRsp
         /// </summary>
         public string type { get; init; } = null!;
         public long updated { get; init; }
+    }
+
+    [JsonSerializable(typeof(ModpackManifest))]
+    public partial class ModpackManifestContext : JsonSerializerContext
+    {
+
     }
 }

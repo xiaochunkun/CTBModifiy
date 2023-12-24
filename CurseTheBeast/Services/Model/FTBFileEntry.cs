@@ -19,7 +19,8 @@ public class FTBFileEntry : FileEntry
         WithSize(file.size);
         WithArchiveEntryName(file.path, file.name);
 
-        if (ArchiveEntryName!.StartsWith("mods/") && ArchiveEntryName.EndsWith(".jar.disabled"))
+        if (ArchiveEntryName!.StartsWith("mods/", StringComparison.OrdinalIgnoreCase) 
+            && ArchiveEntryName.EndsWith(".jar.disabled", StringComparison.OrdinalIgnoreCase))
             ArchiveEntryName = ArchiveEntryName.Remove(ArchiveEntryName.Length - 9);
 
         var url = !string.IsNullOrWhiteSpace(file.url) ? file.url

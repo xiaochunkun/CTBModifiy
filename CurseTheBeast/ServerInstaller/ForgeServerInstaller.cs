@@ -133,7 +133,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
     {
         var entry = zip.GetEntry(entryName) ?? throw new Exception($"不支持forge-{GameVersion}-{LoaderVersion}服务端预安装");
         using var stream = entry.Open();
-        return (await JsonSerializer.DeserializeAsync<JsonNode>(stream))!;
+        return (await JsonSerializer.DeserializeAsync(stream, JsonNodeContext.Default.JsonNode))!;
     }
 
     public override async Task<IReadOnlyCollection<FileEntry>> PreInstallAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
