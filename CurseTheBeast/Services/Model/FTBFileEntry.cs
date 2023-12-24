@@ -19,6 +19,9 @@ public class FTBFileEntry : FileEntry
         WithSize(file.size);
         WithArchiveEntryName(file.path, file.name);
 
+        if (ArchiveEntryName!.StartsWith("mods/") && ArchiveEntryName.EndsWith(".jar.disabled"))
+            ArchiveEntryName = ArchiveEntryName.Remove(ArchiveEntryName.Length - 9);
+
         var url = !string.IsNullOrWhiteSpace(file.url) ? file.url
            : CurseforgeUtils.GetDownloadUrl(file.curseforge!.file,file.name);
         SetDownloadable(file.name, url);

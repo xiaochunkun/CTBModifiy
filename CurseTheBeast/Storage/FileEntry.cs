@@ -8,7 +8,7 @@ public class FileEntry
     public string LocalPath { get; private init; }
     public string LocalTempPath { get; private init; }
     public string? DisplayName { get; private set; }
-    public string? ArchiveEntryName { get; private set; }
+    public string? ArchiveEntryName { get; protected set; }
     public string? Url { get; private set; }
     public bool Required { get; private set; } = true;
     public bool UnixExecutable { get; private set; } = false;
