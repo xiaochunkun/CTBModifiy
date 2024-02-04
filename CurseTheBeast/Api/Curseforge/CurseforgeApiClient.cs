@@ -16,10 +16,9 @@ public class CurseforgeApiClient : BaseApiClient
 
     public async ValueTask<ModFile[]> GetFilesAsync(IEnumerable<long> fileIds, CancellationToken ct)
     {
-        return await PostJsonAsync<ModFile[]>(new Uri($"/v1/mods/files", UriKind.Relative), new
+        return await PostJsonAsync<ModFile[]>(new Uri($"/v1/mods/files", UriKind.Relative), new JsonObject
         {
-            // AOT有bug，不要直接传
-            fileIds = new JsonArray(fileIds.Select(id => JsonValue.Create(id)).ToArray()),
+            ["fileIds"] = new JsonArray(fileIds.Select(id => JsonValue.Create(id)).ToArray()),
         }, Contexts.ModFileArrayContext.Default.GenericRspModFileArray, ct);
     }
 

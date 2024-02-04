@@ -1,8 +1,10 @@
 ﻿using CurseTheBeast.Mirrors;
 using CurseTheBeast.Services;
+using CurseTheBeast.Utils;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 
 namespace CurseTheBeast.Api;
@@ -74,9 +76,9 @@ public abstract class BaseApiClient : IDisposable
     protected virtual async Task<TRsp> PostAsync<TRsp>(Uri uri, Func<HttpContent> contentProvider, JsonTypeInfo? type, CancellationToken ct)
         => await CallJsonAsync<TRsp>(HttpMethod.Post, uri, contentProvider, type, ct);
 
-    protected virtual async Task<TRsp> PostJsonAsync<TRsp>(Uri uri, object content, JsonTypeInfo? type, CancellationToken ct)
+    protected virtual async Task<TRsp> PostJsonAsync<TRsp>(Uri uri, JsonNode content, JsonTypeInfo? type, CancellationToken ct)
     {
-        return await CallJsonAsync<TRsp>(HttpMethod.Post, uri, () => JsonContent.Create(content, content.GetType()), type, ct);
+        return await CallJsonAsync<TRsp>(HttpMethod.Post, uri, () => JsonContent.Create(content, JsonNodeContext.Default.JsonNode), type, ct);
     }
 
     protected virtual async Task<bool> IsAvailableAsync(Uri uri, CancellationToken ct)
