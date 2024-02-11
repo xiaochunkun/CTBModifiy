@@ -44,6 +44,8 @@ CurseTheBeast
 
 把打包好的文件拖到启动器上即可安装
 
+**注意：如果使用 HMCL 启动器安装整合包，请确保使用 Java11 或更高版本的 Java 运行 HMCL，否则安装过程会卡在``解析整合包``步骤**
+
 ![](doc/img/installation.jpg)
 
 **注意根据MC版本选择正确的Java版本运行**
