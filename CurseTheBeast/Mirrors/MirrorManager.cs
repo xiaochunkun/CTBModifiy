@@ -8,7 +8,6 @@ public static class MirrorManager
 {
     static readonly IReadOnlyList<IMirror> Mirrors = new IMirror[]
     {
-        McbbsMirror.Instance,
         BmclMirror.Instance,
         Lss233Mirror.Instance,
     };
