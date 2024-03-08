@@ -152,7 +152,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         }
 
         // 执行安装
-        var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", "." }, 
+        var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", ".", "--offline" }, 
             _tempStorage.WorkSpace, ct);
         if (ret != 0)
             throw new Exception($"forge-{GameVersion}-{LoaderVersion}服务端预安装失败");
