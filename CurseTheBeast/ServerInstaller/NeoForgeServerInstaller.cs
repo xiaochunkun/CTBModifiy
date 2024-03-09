@@ -132,7 +132,7 @@ public class NeoForgeServerInstaller : AbstractModServerInstaller
     {
         var entry = zip.GetEntry(entryName) ?? throw new Exception($"不支持 neoforge-{GameVersion}-{LoaderVersion} 服务端预安装");
         using var stream = entry.Open();
-        return (await JsonSerializer.DeserializeAsync<JsonNode>(stream))!;
+        return (await JsonSerializer.DeserializeAsync<JsonNode>(stream, JsonNodeContext.Default.JsonNode))!;
     }
 
     public override async Task<IReadOnlyCollection<FileEntry>> PreInstallAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
@@ -151,7 +151,7 @@ public class NeoForgeServerInstaller : AbstractModServerInstaller
         }
 
         // 执行安装
-        var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", "." }, 
+        var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", ".", "--offline" }, 
             _tempStorage.WorkSpace, ct);
         if (ret != 0)
             throw new Exception($" neoforge-{GameVersion}-{LoaderVersion}服务端预安装失败 ");
