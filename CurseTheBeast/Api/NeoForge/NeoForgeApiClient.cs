@@ -8,9 +8,14 @@ public class NeoForgeApiClient : BaseApiClient
 
     }
 
-    public async Task<string?> GetServerInstallerUrlAsync(string gameVersion, string forgeVersion, CancellationToken ct = default)
+    public async Task<string?> GetServerInstallerUrlAsync(string gameVersion, string neoforgeVersion, CancellationToken ct = default)
     {
-        var url = $"https://maven.neoforged.net/net/neoforged/forge/{gameVersion}-{forgeVersion}/forge-{gameVersion}-{forgeVersion}-installer.jar";
+        string url;
+        if (gameVersion == "1.20.1")
+            url = $"https://maven.neoforged.net/releases/net/neoforged/forge/1.20.1-{neoforgeVersion}/forge-1.20.1-{neoforgeVersion}-installer.jar";
+        else
+            url = $"https://maven.neoforged.net/releases/net/neoforged/neoforge/{neoforgeVersion}/neoforge-{neoforgeVersion}-installer.jar";
+
         if (await IsAvailableAsync(new Uri(url), ct))
             return url;
 
