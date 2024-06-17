@@ -154,7 +154,7 @@ public class NeoForgeServerInstaller : AbstractModServerInstaller
         var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", ".", "--offline" }, 
             _tempStorage.WorkSpace, ct);
         if (ret != 0)
-            throw new Exception($" neoforge-{GameVersion}-{LoaderVersion}服务端预安装失败 ");
+            throw new Exception($"neoforge-{GameVersion}-{LoaderVersion} 服务端预安装失败 ");
 
         var title = ServerName ?? $"NeoForge Server {GameVersion} {LoaderVersion}";
         var files = new List<FileEntry>(64);
@@ -180,7 +180,7 @@ public class NeoForgeServerInstaller : AbstractModServerInstaller
         }
 
         // 生成EULA同意文件
-        await GenerateEulaAgreeFileAsync(_tempStorage.WorkSpace, ct);
+        await GenerateEulaAgreementFileAsync(_tempStorage.WorkSpace, ct);
 
         files.AddRange(_tempStorage.GetWorkSpaceFiles());
         if (launcherScriptName != null && Environment.OSVersion.Platform != PlatformID.Win32NT)

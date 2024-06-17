@@ -38,7 +38,7 @@ public class ServerModLoaderService : IDisposable
             return await GetStandaloneLoaderJarAsync(ct);
 
         if (!PreinstallSupported || _installer == null)
-            throw new Exception($"不支持预安装{_pack.Runtime.ModLoaderType}-{_pack.Runtime.GameVersion}-{_pack.Runtime.ModLoaderVersion}服务端");
+            throw new Exception($"不支持预安装 {_pack.Runtime.ModLoaderType}-{_pack.Runtime.GameVersion}-{_pack.Runtime.ModLoaderVersion} 服务端");
 
         _java ??= await GetJavaRuntimeAsync(ct);
         var serverJar = await GetServerJarAsync(ct);
@@ -52,12 +52,12 @@ public class ServerModLoaderService : IDisposable
     {
         if (_installer != null)
         {
-            var installerJar = await Focused.StatusAsync($"获取{_pack.Runtime.ModLoaderType}加载器", async ctx => await _installer.ResolveStandaloneLoaderJarAsync(ct));
+            var installerJar = await Focused.StatusAsync($"获取 {_pack.Runtime.ModLoaderType} 加载器", async ctx => await _installer.ResolveStandaloneLoaderJarAsync(ct));
             if (installerJar != null)
             {
                 try
                 {
-                    await FileDownloadService.DownloadAsync($"下载{_pack.Runtime.ModLoaderType}加载器", installerJar, ct);
+                    await FileDownloadService.DownloadAsync($"下载 {_pack.Runtime.ModLoaderType} 加载器", installerJar, ct);
                     return installerJar;
                 }
                 catch (Exception)
@@ -72,16 +72,16 @@ public class ServerModLoaderService : IDisposable
 
     public async Task<IReadOnlyCollection<FileEntry>> GetModLoaderFilesAsync(JavaRuntime java, FileEntry serverJar, CancellationToken ct = default)
     {
-        var installerJar = await Focused.StatusAsync($"解析{_pack.Runtime.ModLoaderType}安装器", async ctx => await _installer!.ResolveInstallerAsync(ct));
+        var installerJar = await Focused.StatusAsync($"解析 {_pack.Runtime.ModLoaderType} 安装器", async ctx => await _installer!.ResolveInstallerAsync(ct));
         if (installerJar.Count > 0)
-            await FileDownloadService.DownloadAsync($"下载{_pack.Runtime.ModLoaderType}安装器", installerJar, ct);
+            await FileDownloadService.DownloadAsync($"下载 {_pack.Runtime.ModLoaderType} 安装器", installerJar, ct);
 
-        var deps = await Focused.StatusAsync($"解析{_pack.Runtime.ModLoaderType}依赖", 
+        var deps = await Focused.StatusAsync($"解析 {_pack.Runtime.ModLoaderType} 依赖", 
             async ctx => await _installer!.ResolveInstallerDependenciesAsync(ct));
         if(deps.Count > 0)
-            await FileDownloadService.DownloadAsync($"下载{_pack.Runtime.ModLoaderType}依赖", deps, ct);
+            await FileDownloadService.DownloadAsync($"下载 {_pack.Runtime.ModLoaderType} 依赖", deps, ct);
 
-        return await Focused.StatusAsync($"预安装{_pack.Runtime.ModLoaderType}服务端", 
+        return await Focused.StatusAsync($"预安装 {_pack.Runtime.ModLoaderType} 服务端", 
             async ctx => await _installer!.PreInstallAsync(java, serverJar));
     }
 
@@ -116,7 +116,7 @@ public class ServerModLoaderService : IDisposable
             using var api = new MojangApiClient();
             var list = await api.GetGameVersionListAsync(ct);
             var version = list.versions.FirstOrDefault(v => v.id == _pack.Runtime.GameVersion)
-                ?? throw new Exception("未知的MC版本：" + _pack.Runtime.GameVersion);
+                ?? throw new Exception("未知的 MC 版本：" + _pack.Runtime.GameVersion);
             return await api.GetGameManifestAsync(version.url, ct);
         });
         serverJarFile.SetDownloadable($"mc-server-{_pack.Runtime.GameVersion}.jar", manifest.downloads.server.url)
@@ -128,7 +128,7 @@ public class ServerModLoaderService : IDisposable
 
     public async Task<JavaRuntime> GetJavaRuntimeAsync(CancellationToken ct = default)
     {
-        var javaArchiveFile = await Focused.StatusAsync("获取Java运行环境信息", async ctx =>
+        var javaArchiveFile = await Focused.StatusAsync("获取 Java 运行环境信息", async ctx =>
         {
             var os = Environment.OSVersion.Platform switch
             {
@@ -173,16 +173,16 @@ public class ServerModLoaderService : IDisposable
                     break;
             }
             if(pkg == null)
-                throw new Exception($"服务端预安装失败：无法获取Java{_pack.Runtime.JavaVersion}运行环境信息");
+                throw new Exception($"服务端预安装失败：无法获取 Java{_pack.Runtime.JavaVersion} 运行环境信息");
 
             // 新版索引
             javaArchiveFile = new FileEntry(RepoType.JreArchive, pkg.name)
                 .SetDownloadable(fileName, pkg.download_url);
             return javaArchiveFile;
         });
-        await FileDownloadService.DownloadAsync("下载Java运行环境", new[] { javaArchiveFile }, ct);
+        await FileDownloadService.DownloadAsync("下载 Java 运行环境", new[] { javaArchiveFile }, ct);
 
-        return Focused.Status("准备Java运行环境", ctx =>
+        return Focused.Status("准备 Java 运行环境", ctx =>
         {
             return JavaRuntime.FromArchive(javaArchiveFile.LocalPath);
         });

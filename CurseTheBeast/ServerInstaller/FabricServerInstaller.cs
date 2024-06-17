@@ -81,7 +81,7 @@ public partial class FabricServerInstaller : AbstractModServerInstaller
         var jreFiles = await java.GetJreFilesAsync(ct);
         var scriptFile = JarLauncherUtils.GenerateScript(_tempStorage.WorkSpace, java.DistName, launcherFile.ArchiveEntryName!, ServerName ?? $"Fabric Server {GameVersion} {LoaderVersion}", Ram);
         serverJar.WithArchiveEntryName("server.jar");
-        var eulaAgreementFile = await GenerateEulaAgreeFileAsync(_tempStorage.WorkSpace, ct);
+        var eulaAgreementFile = await GenerateEulaAgreementFileAsync(_tempStorage.WorkSpace, ct);
 
         var files = new List<FileEntry>
         {

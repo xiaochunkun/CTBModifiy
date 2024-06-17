@@ -14,7 +14,8 @@ public class FTBService : IDisposable
     {
         81,     // Minecraft
         104,    // Minecraft Forge
-        116     // NeoForge
+        116,    // NeoForge
+        105     // Fabric
     };
 
     readonly FTBApiClient _ftb;
@@ -150,7 +151,7 @@ public class FTBService : IDisposable
                 }
 
                 await LocalStorage.Persistent.SaveObjectAsync<ModpackCache>("list", cache, ModpackCache.ModpackCacheContext.Default.ModpackCache);
-                return cache.Items.Select(pair => (pair.Key, pair.Value.Name)).ToArray();
+                return cache.Items.Where(item => !BlackList.Contains(item.Key)).Select(pair => (pair.Key, pair.Value.Name)).ToArray();
             });
     }
 

@@ -48,7 +48,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
     {
         var installers = await ResolveStandaloneLoaderJarAsync(ct);
         if (installers.Count == 0)
-            throw new Exception($"无法获取forge-{GameVersion}-{LoaderVersion}安装器下载链接");
+            throw new Exception($"无法获取 forge-{GameVersion}-{LoaderVersion} 安装器下载链接");
         _installer = installers.First();
         return installers;
     }
@@ -98,7 +98,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         }
         else
         {
-            throw new Exception($"不支持forge-{GameVersion}-{LoaderVersion}服务端预安装");
+            throw new Exception($"不支持 forge-{GameVersion}-{LoaderVersion} 服务端预安装");
         }
 
         _libraries = new[] { installerJson, versionJson }
@@ -131,7 +131,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
 
     async ValueTask<JsonNode> getJsonInZip(ZipArchive zip, string entryName)
     {
-        var entry = zip.GetEntry(entryName) ?? throw new Exception($"不支持forge-{GameVersion}-{LoaderVersion}服务端预安装");
+        var entry = zip.GetEntry(entryName) ?? throw new Exception($"不支持 forge-{GameVersion}-{LoaderVersion} 服务端预安装");
         using var stream = entry.Open();
         return (await JsonSerializer.DeserializeAsync(stream, JsonNodeContext.Default.JsonNode))!;
     }
@@ -155,7 +155,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         var ret = await java.ExecuteJarAsync(_installer.LocalPath, new[] { "--installServer", ".", "--offline" }, 
             _tempStorage.WorkSpace, ct);
         if (ret != 0)
-            throw new Exception($"forge-{GameVersion}-{LoaderVersion}服务端预安装失败");
+            throw new Exception($"forge-{GameVersion}-{LoaderVersion} 服务端预安装失败");
 
         var title = ServerName ?? $"Forge Server {GameVersion} {LoaderVersion}";
         var files = new List<FileEntry>(64);
@@ -181,7 +181,7 @@ public class ForgeServerInstaller : AbstractModServerInstaller
         }
 
         // 生成EULA同意文件
-        await GenerateEulaAgreeFileAsync(_tempStorage.WorkSpace, ct);
+        await GenerateEulaAgreementFileAsync(_tempStorage.WorkSpace, ct);
 
         files.AddRange(_tempStorage.GetWorkSpaceFiles());
         if (launcherScriptName != null && Environment.OSVersion.Platform != PlatformID.Win32NT)

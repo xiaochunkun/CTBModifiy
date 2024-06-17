@@ -38,7 +38,7 @@ public abstract class AbstractModServerInstaller : IDisposable
         throw new NotImplementedException();
     }
 
-    protected async Task<FileEntry> GenerateEulaAgreeFileAsync(string dir, CancellationToken ct = default)
+    protected async Task<FileEntry> GenerateEulaAgreementFileAsync(string dir, CancellationToken ct = default)
     {
         var file = new FileEntry(Path.Combine(dir, "eula.txt"))
             .WithArchiveEntryName("eula.txt");
