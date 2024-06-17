@@ -9,11 +9,6 @@ namespace CurseTheBeast.ServerInstaller;
 
 public class JavaRuntime : IDisposable
 {
-    static readonly IReadOnlySet<string> KnownRequiredJmods = new HashSet<string>() 
-    {
-        "java.base", "java.management", "java.logging", "java.security.sasl", "java.naming", "jdk.jfr", "java.compiler", "java.datatransfer", "java.xml", "java.prefs", "java.desktop", "java.instrument", "java.rmi", "java.management.rmi", "java.net.http", "java.scripting", "java.security.jgss", "java.transaction.xa", "java.sql", "java.sql.rowset", "java.xml.crypto", "java.se", "java.smartcardio", "jdk.unsupported", "jdk.unsupported.desktop", "jdk.jsobject", "jdk.xml.dom", "jdk.accessibility", "jdk.internal.vm.ci", "jdk.management", "jdk.internal.vm.compiler", "jdk.aot", "jdk.charsets", "jdk.crypto.ec", "jdk.crypto.cryptoki", "jdk.crypto.mscapi", "jdk.dynalink", "jdk.httpserver", "jdk.internal.ed", "jdk.internal.le", "jdk.internal.vm.compiler.management", "jdk.jdwp.agent", "jdk.localedata", "jdk.management.agent", "jdk.management.jfr", "jdk.naming.dns", "jdk.naming.ldap", "jdk.naming.rmi", "jdk.net", "jdk.pack", "jdk.scripting.nashorn", "jdk.scripting.nashorn.shell", "jdk.sctp", "jdk.security.auth", "jdk.security.jgss", "jdk.zipfs", "jdk.incubator.foreign", "jdk.incubator.vector", "jdk.nio.mapmode", "jdk.random"
-    };
-
     public string DistName { get; }
     public string JavaHome { get; }
     public string JavaPath { get; }
@@ -111,7 +106,7 @@ public class JavaRuntime : IDisposable
         if (Directory.Exists(jrePath))
             return jrePath;
         var jmodsPath = Path.Combine(JavaHome, "jmods");
-        var jmods = string.Join(',', KnownRequiredJmods.Where(m => File.Exists(Path.Combine(jmodsPath, $"{m}.jmod"))));
+        var jmods = string.Join(',', Directory.GetFiles(jmodsPath, "*.jmod").Select(path => Path.GetFileNameWithoutExtension(path)));
 
         var ret = await executeAsync(Path.Combine(JavaPath, Environment.OSVersion.Platform == PlatformID.Win32NT ? "jlink.exe" : "jlink"), 
             new[] { "--output", jrePath, "--module-path", jmodsPath, "--add-modules", jmods, "--strip-debug", "--no-man-pages", "--no-header-files" }, 
