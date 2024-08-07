@@ -4,6 +4,7 @@ using CurseTheBeast.Api.Mojang;
 using CurseTheBeast.ServerInstaller;
 using CurseTheBeast.Services.Model;
 using CurseTheBeast.Storage;
+using Semver;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 
@@ -138,11 +139,11 @@ public class ServerModLoaderService : IDisposable
             };
             var arch = RuntimeInformation.ProcessArchitecture.ToString().ToLower();
             var archiveType = Environment.OSVersion.Platform == PlatformID.Win32NT ? "zip" : "tar.gz";
-            var majorVersion = _pack.Runtime.JavaVersion.Substring(0, _pack.Runtime.JavaVersion.IndexOf('.'));
+            var javaVersion = SemVersion.Parse(_pack.Runtime.JavaVersion);
 
-            var fileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
+            var displayFileName = $"zulu-{_pack.Runtime.JavaVersion}-{os}.{archiveType}";
             // 兼容旧版索引
-            var javaArchiveFile = new FileEntry(RepoType.JreArchive, fileName);
+            var javaArchiveFile = new FileEntry(RepoType.JreArchive, displayFileName);
             if (javaArchiveFile.Validate())
             {
                 // 检查之前误下载的musl版JRE
@@ -152,22 +153,22 @@ public class ServerModLoaderService : IDisposable
                     return javaArchiveFile;
             }
 
-            var baseVersionPair = (Version: _pack.Runtime.JavaVersion, PkgType: "jre");
+            var baseVersionPair = (Version: $"{javaVersion.Major}.{javaVersion.Minor}.{javaVersion.Patch}", PkgType: "jre");
             var versionPairs = new[] { baseVersionPair, baseVersionPair with { PkgType = "jdk" } }.AsEnumerable();
-            if (majorVersion == "8")
+            if (javaVersion.Major == 8)
             {
                 versionPairs = versionPairs.Append((DefaultJava8Version, "jre"))
                     .Append((DefaultJava8Version, "jdk"));
             }
-            versionPairs = versionPairs.Append((majorVersion, "jre"))
-                    .Append((majorVersion, "jdk"));
+            versionPairs = versionPairs.Append((javaVersion.Major.ToString(), "jre"))
+                    .Append((javaVersion.Major.ToString(), "jdk"));
 
             using var api = new AzulApiClient();
             ZuluPackage? pkg = null;
             foreach (var pair in versionPairs)
             {
                 pkg = (await api.GetZuluPackageAsync(pair.Version, os, arch, archiveType, pair.PkgType, ct))
-                    .Where(p => !p.name.ToLower().Contains("musl"))
+                    .Where(p => !p.name.ToLower().Contains("musl") && p.java_version[0] == javaVersion.Major)
                     .FirstOrDefault();
                 if (pkg != null)
                     break;
@@ -177,7 +178,7 @@ public class ServerModLoaderService : IDisposable
 
             // 新版索引
             javaArchiveFile = new FileEntry(RepoType.JreArchive, pkg.name)
-                .SetDownloadable(fileName, pkg.download_url);
+                .SetDownloadable(displayFileName, pkg.download_url);
             return javaArchiveFile;
         });
         await FileDownloadService.DownloadAsync("下载 Java 运行环境", new[] { javaArchiveFile }, ct);
