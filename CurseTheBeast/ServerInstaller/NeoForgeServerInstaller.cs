@@ -118,7 +118,7 @@ public class NeoForgeServerInstaller : AbstractModServerInstaller
             return null;
 
         var mavenFile = new MavenFileEntry(artifactId)
-            .WithMavenUrl(providedUrl)
+            .WithMavenUrl(providedUrl.Replace("//maven.neoforged.net/releases/", "//maven.neoforged.net/"))
             .WithMavenBaseArchiveEntryName();
         if (string.IsNullOrWhiteSpace(path))
             mavenFile.WithMavenBaseArchiveEntryName();
