@@ -35,4 +35,7 @@ public class FTBApiClient : BaseApiClient
 
     public Task<ModpackManifest> GetManifestAsync(int modpackId, int versionId, CancellationToken ct = default)
         => GetAsync<ModpackManifest>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}/{versionId}"), ModpackManifest.ModpackManifestContext.Default.ModpackManifest, ct);
+
+    public Task<ModInfo> GetModInfoAsync(string sha1, CancellationToken ct = default)
+        => GetAsync<ModInfo>(new Uri($"https://api.modpacks.ch/public/mod/{sha1}"), ModInfo.ModInfoContext.Default.ModInfo, ct);
 }
