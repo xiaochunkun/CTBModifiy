@@ -236,7 +236,10 @@ public class FTBService : IDisposable
         else if (full)
             files.AddRange(pack.Files.ClientFullFiles);
         else
+        {
+            await CorrectCurseForgeMetadata(pack, ct);
             files.AddRange(pack.Files.ClientFilesWithoutCurseforgeMods);
+        }
 
         if (pack.Icon != null)
             files.Add(pack.Icon);
@@ -245,6 +248,14 @@ public class FTBService : IDisposable
         await TryRecoverUnreachableFiles(files.Where(f => f is FTBFileEntry).Select(f => f as FTBFileEntry)!, ct);
 
         Success.WriteLine("√ 下载完成");
+    }
+
+    private async Task CorrectCurseForgeMetadata(FTBModpack modpack, CancellationToken ct = default)
+    {
+        var list = await CurseforgeService.GetFilesWithIncorrectMetadata(modpack.Files.ClientCurseforgeMods, ct);
+        var set = list.Select(f => f.Id).ToHashSet();
+        modpack.Files.ClientCurseforgeMods = modpack.Files.ClientCurseforgeMods.Where(f => !set.Contains(f.Id)).ToArray();
+        modpack.Files.ClientFilesWithoutCurseforgeMods = [.. modpack.Files.ClientFilesWithoutCurseforgeMods, .. list];
     }
 
     public async Task TryRecoverUnreachableFiles(IEnumerable<FTBFileEntry> allFiles, CancellationToken ct = default)
