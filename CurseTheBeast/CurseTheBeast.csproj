@@ -8,7 +8,7 @@
     <Platforms>x64;ARM64</Platforms>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>TexTrue, TomatoPuddin</Authors>
     <Product>CurseTheBeast</Product>
     <Title>CurseTheBeast</Title>
@@ -30,11 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Semver" Version="3.0.0-beta.1" />
-    <PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.38" />
-    <PackageReference Include="Spectre.Console.Cli" Version="0.47.1-preview.0.38" />
-    <PackageReference Include="Strings.ResourceGenerator" Version="0.6.10" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+    <PackageReference Include="Semver" Version="3.0.0" />
+    <PackageReference Include="Spectre.Console" Version="0.49.1" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
+    <PackageReference Include="Strings.ResourceGenerator" Version="0.6.11" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

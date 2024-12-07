@@ -28,7 +28,10 @@ app.Configure(config =>
     config.AddCommand<SearchCommand>("search");
     config.AddCommand<ListCommand>("list");
     // config.AddCommand<DiffCommand>("diff");
-    config.SetExceptionHandler(ErrorUtils.Handler);
+    config.SetExceptionHandler((ex, resolver) => 
+    { 
+        ErrorUtils.Handler(ex); 
+    });
 });
 app.SetDefaultCommand<DefaultCommand>();
 
