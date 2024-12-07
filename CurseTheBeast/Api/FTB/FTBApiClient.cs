@@ -22,20 +22,20 @@ public class FTBApiClient : BaseApiClient
     }
 
     public Task<ModpackSearchResult> SearchAsync(string keyword, CancellationToken ct = default)
-        => GetAsync<ModpackSearchResult>(new Uri($"https://api.modpacks.ch/public/modpack/search/20/detailed?platform=modpacksch&term={Uri.EscapeDataString(keyword)}"), ModpackSearchResult.ModpackSearchResultContext.Default.ModpackSearchResult, ct);
+        => GetAsync<ModpackSearchResult>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/modpack/search/20/detailed?platform=modpacksch&term={Uri.EscapeDataString(keyword)}"), ModpackSearchResult.ModpackSearchResultContext.Default.ModpackSearchResult, ct);
 
     public Task<ModpackList> GetListAsync(CancellationToken ct = default)
-        => GetAsync<ModpackList>(new Uri($"https://api.modpacks.ch/public/modpack/all"), ModpackList.ModpackListContext.Default.ModpackList, ct);
+        => GetAsync<ModpackList>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/modpack/all"), ModpackList.ModpackListContext.Default.ModpackList, ct);
 
     public Task<ModpackList> GetFeaturedAsync(CancellationToken ct = default)
-        => GetAsync<ModpackList>(new Uri($"https://api.modpacks.ch/public/modpack/featured/20"), ModpackList.ModpackListContext.Default.ModpackList, ct);
+        => GetAsync<ModpackList>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/modpack/featured/20"), ModpackList.ModpackListContext.Default.ModpackList, ct);
 
     public Task<ModpackInfo> GetInfoAsync(int modpackId, CancellationToken ct = default)
-        => GetAsync<ModpackInfo>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}"), ModpackInfo.ModpackInfoContext.Default.ModpackInfo, ct);
+        => GetAsync<ModpackInfo>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/modpack/{modpackId}"), ModpackInfo.ModpackInfoContext.Default.ModpackInfo, ct);
 
     public Task<ModpackManifest> GetManifestAsync(int modpackId, int versionId, CancellationToken ct = default)
-        => GetAsync<ModpackManifest>(new Uri($"https://api.modpacks.ch/public/modpack/{modpackId}/{versionId}"), ModpackManifest.ModpackManifestContext.Default.ModpackManifest, ct);
+        => GetAsync<ModpackManifest>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/modpack/{modpackId}/{versionId}"), ModpackManifest.ModpackManifestContext.Default.ModpackManifest, ct);
 
     public Task<ModInfo> GetModInfoAsync(string sha1, CancellationToken ct = default)
-        => GetAsync<ModInfo>(new Uri($"https://api.modpacks.ch/public/mod/{sha1}"), ModInfo.ModInfoContext.Default.ModInfo, ct);
+        => GetAsync<ModInfo>(new Uri($"https://api.feed-the-beast.com/v1/modpacks/public/mod/{sha1}"), ModInfo.ModInfoContext.Default.ModInfo, ct);
 }
