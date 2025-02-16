@@ -82,7 +82,7 @@ windows下缓存位置为
 
 linux下为
 `~/.local/share/CurseTheBeast`
-
+ 
 ## 其它
 
 默认UA
